@@ -1,0 +1,13 @@
+(START)
+*{ teste com erros semanticos intencionais }*
+(NAO)
+(1.5 2 /)
+(3.0 2 %)
+((1 2 +) (3 4 +) IF)
+(10 VAR MEM)
+(3.14 VAR MEM)
+(9 RES)
+((VAR 1 -) (2 3 +) WHILE)
+(7.0 2.0 |)
+(5 2 ^)
+(END)

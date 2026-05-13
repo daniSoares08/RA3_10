@@ -1,0 +1,42 @@
+# Arvore sintatica atribuida
+
+Arvore atribuida com 1 simbolo(s) e 38 tipo(s) anotado(s).
+
+- PROGRAMA valor=`PROGRAMA` operador=`` tipo=desconhecido linha=1
+  - ATRIBUICAO valor=`ACC` operador=`` tipo=inteiro linha=3
+    - NUMERO valor=`100` operador=`` tipo=inteiro linha=3
+  - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=4
+  - IF valor=`IF` operador=`` tipo=inteiro linha=5
+    - BINARIO valor=`` operador=`>` tipo=bool linha=5
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=5
+      - NUMERO valor=`50` operador=`` tipo=inteiro linha=5
+    - BINARIO valor=`` operador=`/` tipo=inteiro linha=5
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=5
+      - NUMERO valor=`2` operador=`` tipo=inteiro linha=5
+  - BINARIO valor=`` operador=`|` tipo=real linha=6
+    - NUMERO valor=`7.0` operador=`` tipo=real linha=6
+    - NUMERO valor=`2.0` operador=`` tipo=real linha=6
+  - BINARIO valor=`` operador=`+` tipo=inteiro linha=7
+    - BINARIO valor=`` operador=`*` tipo=inteiro linha=7
+      - NUMERO valor=`3` operador=`` tipo=inteiro linha=7
+      - NUMERO valor=`4` operador=`` tipo=inteiro linha=7
+    - BINARIO valor=`` operador=`+` tipo=inteiro linha=7
+      - NUMERO valor=`5` operador=`` tipo=inteiro linha=7
+      - NUMERO valor=`6` operador=`` tipo=inteiro linha=7
+  - BINARIO valor=`` operador=`%` tipo=inteiro linha=8
+    - NUMERO valor=`9` operador=`` tipo=inteiro linha=8
+    - NUMERO valor=`4` operador=`` tipo=inteiro linha=8
+  - BINARIO valor=`` operador=`^` tipo=inteiro linha=9
+    - NUMERO valor=`2` operador=`` tipo=inteiro linha=9
+    - NUMERO valor=`8` operador=`` tipo=inteiro linha=9
+  - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=10
+    - BINARIO valor=`` operador=`>` tipo=bool linha=10
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=10
+      - NUMERO valor=`0` operador=`` tipo=inteiro linha=10
+    - BINARIO valor=`` operador=`-` tipo=inteiro linha=10
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=10
+      - NUMERO valor=`1` operador=`` tipo=inteiro linha=10
+  - RES valor=`3` operador=`` tipo=inteiro linha=11
+  - BINARIO valor=`` operador=`+` tipo=real linha=12
+    - NUMERO valor=`3.14` operador=`` tipo=real linha=12
+    - NUMERO valor=`2.0` operador=`` tipo=real linha=12
