@@ -1,26 +1,33 @@
-CC ?= gcc
-CFLAGS ?= -std=c11 -Wall -Wextra -pedantic -Iinclude
-TARGET ?= AnalisadorSemantico
+PYTHON ?= python
 
-SOURCES = \
-	AnalisadorSemantico.c \
-	src/arquivo_saida.c \
-	src/artefatos.c \
-	src/arvore_atribuida.c \
-	src/assembly.c \
-	src/entrada.c \
-	src/funcoes_teste_semantico.c \
-	src/tabela_simbolos.c \
-	src/tipos.c
+PYTHON_SOURCES = \
+	AnalisadorSemantico.py \
+	funcoes_teste_semantico.py \
+	analisador/__init__.py \
+	analisador/arquivo_saida.py \
+	analisador/artefatos.py \
+	analisador/arvore_atribuida.py \
+	analisador/assembly.py \
+	analisador/cli.py \
+	analisador/entrada.py \
+	analisador/modelos.py \
+	analisador/tabela_simbolos.py \
+	analisador/tipos.py
 
-OBJECTS = $(SOURCES:.c=.o)
+.PHONY: all check test run clean
 
-.PHONY: all clean
+all: check
 
-all: $(TARGET)
+check:
+	$(PYTHON) -m py_compile $(PYTHON_SOURCES)
 
-$(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
+run:
+	$(PYTHON) AnalisadorSemantico.py teste1_valido.txt
+
+test: check
+	$(PYTHON) AnalisadorSemantico.py teste1_valido.txt
+	-$(PYTHON) AnalisadorSemantico.py teste2_erros_semanticos.txt
+	$(PYTHON) AnalisadorSemantico.py teste3_integracao.txt
 
 clean:
-	rm -f $(TARGET) $(OBJECTS)
+	$(PYTHON) -c "import pathlib, shutil; [shutil.rmtree(p) for p in pathlib.Path('.').rglob('__pycache__')]"

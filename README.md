@@ -8,43 +8,48 @@
 - Professor: Frank Coelho De Alcantara
 - Trabalho realizado individualmente: Daniel Campos Soares - `daniSoares08`
 - Nome do grupo no Canvas: RA3_10
-- Linguagem de implementacao: C
-
-## Como compilar
-
-Com `gcc`:
-
-```bash
-gcc -std=c11 -Wall -Wextra -pedantic -Iinclude -o AnalisadorSemantico.exe AnalisadorSemantico.c src\arquivo_saida.c src\artefatos.c src\arvore_atribuida.c src\assembly.c src\entrada.c src\funcoes_teste_semantico.c src\tabela_simbolos.c src\tipos.c
-```
-
-Com `make`, em ambiente que tenha `make` disponivel:
-
-```bash
-make
-```
+- Linguagem de implementacao oficial: Python
 
 ## Como executar
 
 O programa recebe um unico arquivo de teste por argumento e nao usa menu interativo.
 
 ```bash
-.\AnalisadorSemantico.exe teste1_valido.txt
+python AnalisadorSemantico.py teste1_valido.txt
 ```
 
-## Como depurar
+## Como testar
 
-Compile com simbolos de depuracao:
+Execute os tres arquivos de teste da entrega:
 
 ```bash
-gcc -g -std=c11 -Wall -Wextra -pedantic -Iinclude -o AnalisadorSemantico.exe AnalisadorSemantico.c src\arquivo_saida.c src\artefatos.c src\arvore_atribuida.c src\assembly.c src\entrada.c src\funcoes_teste_semantico.c src\tabela_simbolos.c src\tipos.c
+python AnalisadorSemantico.py teste1_valido.txt
+python AnalisadorSemantico.py teste2_erros_semanticos.txt
+python AnalisadorSemantico.py teste3_integracao.txt
 ```
 
-Depois execute com o arquivo que deseja investigar:
+O segundo teste possui erros semanticos intencionais e deve retornar codigo de erro.
+
+Para validar a sintaxe dos modulos Python:
 
 ```bash
-.\AnalisadorSemantico.exe teste2_erros_semanticos.txt
+python -m py_compile AnalisadorSemantico.py funcoes_teste_semantico.py analisador\__init__.py analisador\arquivo_saida.py analisador\artefatos.py analisador\arvore_atribuida.py analisador\assembly.py analisador\cli.py analisador\entrada.py analisador\modelos.py analisador\tabela_simbolos.py analisador\tipos.py
 ```
+
+## Estrutura
+
+- `AnalisadorSemantico.py`: ponto de entrada exigido pelo enunciado.
+- `analisador/cli.py`: coordena a execucao completa.
+- `analisador/entrada.py`: leitura do arquivo, lexer, tratamento de comentarios, parser e arvore sintatica inicial.
+- `analisador/modelos.py`: tokens, nos da AST, erros, simbolos e resultados compartilhados.
+- `analisador/tabela_simbolos.py`: tabela de simbolos, uso de variaveis, `RES` e validacao semantica principal.
+- `analisador/tipos.py`: consolidacao dos tipos anotados.
+- `analisador/arvore_atribuida.py`: arvore sintatica atribuida.
+- `analisador/assembly.py`: geracao de Assembly ARMv7 para entradas validas.
+- `analisador/artefatos.py`: gravacao dos artefatos finais.
+- `docs/`: gramatica atribuida, regras de tipos e interfaces.
+- `resultados/`: artefatos da ultima execucao.
+- `versao_c/`: versao C preservada apenas para referencia historica e comparacao.
 
 ## Linguagem implementada
 
@@ -72,16 +77,16 @@ Operadores relacionais:
 ## Tipos suportados
 
 - `inteiro`: literal numerico sem ponto decimal e sem expoente.
-- `real`: literal numerico com ponto decimal ou expoente, tratado como double IEEE 754 na geracao de Assembly.
+- `real`: literal numerico com ponto decimal ou expoente.
 - `bool`: resultado de operadores relacionais.
 
-Pendente para decisao do aluno antes da entrega final: o RA1-11 e o RA2_12 nao definem uma sintaxe para literais bool. Por fidelidade aos trabalhos anteriores, esta versao ainda nao inventa palavras como `TRUE` ou `FALSE`.
+O RA1-11 e o RA2_12 nao definem uma sintaxe para literais bool. Por fidelidade aos trabalhos anteriores, esta versao nao inventa palavras como `TRUE` ou `FALSE`.
 
 ## Arquivos de teste
 
 - `teste1_valido.txt`: programa semanticamente valido.
 - `teste2_erros_semanticos.txt`: erros semanticos intencionais.
-- `teste3_integracao.txt`: comentarios, variaveis, expressoes aninhadas, decisoes, repeticoes e RES.
+- `teste3_integracao.txt`: comentarios, variaveis, expressoes aninhadas, decisoes, repeticoes e `RES`.
 
 ## Arquivos de saida
 
@@ -94,11 +99,6 @@ Os artefatos da ultima execucao ficam em `resultados/`:
 - `codigo_assembly_ultima_execucao.s`
 - `relatorio_execucao.md`
 
-## Observacao sobre o RA1 e RA2
+## Observacao sobre a versao C
 
-O RA3 em C foi preparado usando o que era aproveitavel dos projetos anteriores:
-
-- RA1-11: ideia de lexer, memoria, RES e geracao ARMv7 com double/VFP.
-- RA2_12: sintaxe de programa, IF, WHILE, operadores relacionais, parser LL(1) e arvore sintatica.
-
-O erro de nota citado no RA1/RA2 foi tratado na direcao correta: a nova geracao de Assembly usa `.double`, pilha de 8 bytes, `vldr`, `vstr`, `vadd.f64`, `vsub.f64`, `vmul.f64` e `vdiv.f64`, em vez de truncar reais para inteiros.
+A implementacao oficial agora e Python. A antiga versao C foi movida para `versao_c/` para consulta, mas os comandos, o README principal, os artefatos e a estrutura de entrega apontam para Python.
