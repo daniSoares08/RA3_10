@@ -99,6 +99,3 @@ Os artefatos da ultima execucao ficam em `resultados/`:
 - `codigo_assembly_ultima_execucao.s`
 - `relatorio_execucao.md`
 
-## Observacao sobre a versao C
-
-A implementacao oficial agora e Python. A antiga versao C foi movida para `versao_c/` para consulta, mas os comandos, o README principal, os artefatos e a estrutura de entrega apontam para Python.
