@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -57,6 +58,10 @@ def _adicionar_token(
         )
         return
     entrada.tokens.append(Token(tipo=tipo, lexema=lexema[:127], linha=linha, coluna=coluna))
+
+
+def _numero_valido(lexema: str) -> bool:
+    return re.fullmatch(r"-?\d+(\.\d+)?([eE][+-]?\d+)?", lexema) is not None
 
 
 def _registrar_comentario(
@@ -190,7 +195,16 @@ def _tokenizar(entrada: EntradaSemantica) -> int:
                     break
                 i += 1
                 coluna += 1
-            _adicionar_token(entrada, TipoToken.NUMERO, fonte[inicio:i], linha, coluna_inicio)
+            lexema = fonte[inicio:i]
+            if not _numero_valido(lexema):
+                adicionar_erro(
+                    entrada.erros_lexicos,
+                    linha,
+                    lexema,
+                    "Literal numerico mal formado.",
+                )
+                return 1
+            _adicionar_token(entrada, TipoToken.NUMERO, lexema, linha, coluna_inicio)
             continue
 
         if "A" <= c <= "Z":
@@ -305,10 +319,6 @@ def _parse_item(parser: Parser) -> NoAst:
     return criar_no(TipoNo.INVALIDO, token.lexema, token.linha)
 
 
-def _item_mem_keyword(no: NoAst | None) -> bool:
-    return no is not None and no.tipo == TipoNo.VARIAVEL and no.valor == "MEM"
-
-
 def _item_operador(no: NoAst | None) -> bool:
     return (
         no is not None
@@ -333,19 +343,16 @@ def _montar_expressao(parser: Parser, itens: list[NoAst], linha: int) -> NoAst:
     if len(itens) == 2 and itens[0].tipo == TipoNo.NUMERO and itens[1].tipo == TipoNo.RES:
         return criar_no(TipoNo.RES, itens[0].valor, itens[0].linha)
 
+    # Comando especial do enunciado: (V MEM), onde MEM e o nome da memoria.
+    if len(itens) == 2 and itens[1].tipo == TipoNo.VARIAVEL:
+        resultado = criar_no(TipoNo.ATRIBUICAO, itens[1].valor, itens[1].linha)
+        resultado.esquerda = itens[0]
+        return resultado
+
     if len(itens) == 3 and _item_operador(itens[2]):
         resultado = itens[2]
         resultado.esquerda = itens[0]
         resultado.direita = itens[1]
-        return resultado
-
-    if (
-        len(itens) == 3
-        and _item_mem_keyword(itens[2])
-        and itens[1].tipo == TipoNo.VARIAVEL
-    ):
-        resultado = criar_no(TipoNo.ATRIBUICAO, itens[1].valor, itens[1].linha)
-        resultado.esquerda = itens[0]
         return resultado
 
     if len(itens) == 3 and itens[2].tipo in (TipoNo.IF, TipoNo.WHILE):
@@ -429,6 +436,13 @@ def _parse_programa(entrada: EntradaSemantica) -> None:
             _atual(parser).linha,
             "$",
             "Programa deve terminar com (END).",
+        )
+    elif _atual(parser).tipo != TipoToken.EOF:
+        adicionar_erro(
+            entrada.erros_sintaticos,
+            _atual(parser).linha,
+            _atual(parser).lexema,
+            "Nenhum token deve aparecer apos (END).",
         )
 
 

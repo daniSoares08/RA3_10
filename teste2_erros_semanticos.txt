@@ -4,8 +4,8 @@
 (1.5 2 /)
 (3.0 2 %)
 ((1 2 +) (3 4 +) IF)
-(10 VAR MEM)
-(3.14 VAR MEM)
+(10 VAR)
+(3.14 VAR)
 (9 RES)
 ((VAR 1 -) (2 3 +) WHILE)
 (7.0 2.0 |)
@@ -13,8 +13,8 @@
 (4 *{ comentario entre expressoes }* 2 *)
 (TRUE 5 +) *{ erro: operacao aritmetica com literal logico }*
 (TRUE 1 >) *{ erro: operador relacional exige operandos numericos }*
-(TRUE FLAG MEM)
-(5 FLAG MEM) *{ erro: redefinicao de bool para inteiro }*
+(TRUE FLAG)
+(5 FLAG) *{ erro: redefinicao de bool para inteiro }*
 (1 TRUE AND) *{ erro: AND exige operandos logicos }*
 (TRUE 2 OR) *{ erro: OR exige operandos logicos }*
 (3 NOT) *{ erro: NOT exige operando logico }*

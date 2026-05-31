@@ -52,7 +52,7 @@ Cada simbolo registra:
 A analise semantica e dividida em duas funcoes, conforme a Secao 7 do enunciado:
 
 - `construirTabelaSimbolos(arvore)` (Secao 7.2): infere e anota os tipos dos nos,
-  monta a tabela de simbolos e reporta os erros de declaracao — uso de variavel antes
+  monta a tabela de simbolos e reporta os erros de declaracao - uso de variavel antes
   da definicao, redefinicao incompativel de tipo e referencias `RES` invalidas.
 - `verificarTipos(arvore, tabelaSimbolos)` (Secao 7.3): percorre a arvore ja anotada e
   reporta os erros de compatibilidade de tipos das operacoes (aritmeticas, relacionais,

@@ -30,19 +30,19 @@ Se `x` nao estiver em `Gamma`, ocorre erro semantico: variavel usada antes da de
 ```text
 Gamma; R |- e : T    x nao pertence a Gamma
 -------------------------------------------- [T-DEF]
-Gamma; R |- (e x MEM) : T
+Gamma; R |- (e x) : T
 ```
 
 ```text
 Gamma; R |- e : T    Gamma(x) = T
 -------------------------------------------- [T-REDEF-OK]
-Gamma; R |- (e x MEM) : T
+Gamma; R |- (e x) : T
 ```
 
 ```text
 Gamma; R |- e : T2    Gamma(x) = T1    T1 != T2
 ------------------------------------------------ [T-REDEF-ERRO]
-Gamma; R |- (e x MEM) : erro
+Gamma; R |- (e x) : erro
 ```
 
 ## RES
@@ -137,4 +137,4 @@ A escolha segue o padrao de palavras-chave em maiusculas ja usado pela linguagem
 (`RES`, `START`, `END`, `IF`, `WHILE`). Por serem reservadas, `TRUE` e `FALSE` nao
 podem ser usadas como nomes de memoria (`MEM`), assim como `RES` ja nao pode. Com
 isso, `bool` passa a surgir tanto de operadores relacionais quanto de literais
-logicos, e pode ser inferido para uma memoria via `(TRUE MEM_NOME MEM)`.
+logicos, e pode ser inferido para uma memoria via `(TRUE MEM_NOME)`.

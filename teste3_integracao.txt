@@ -1,15 +1,15 @@
 (START)
 *{ comentario antes de definicoes }*
-(100 ACC MEM)
+(100 ACC)
 (ACC)
 ((ACC 50 >) (ACC 2 /) IF)
 (7.0 *{ comentario entre operandos }* 2.0 |)
 ((3 4 *) (5 6 +) +)
 (9 4 %)
 (2 8 ^)
-((ACC 0 >) (ACC 1 -) WHILE)
+((ACC 0 >) ((ACC 1 -) ACC) WHILE)
 (3 RES)
-(FALSE DONE MEM) *{ memoria logica inicializada com literal }*
+(FALSE DONE) *{ memoria logica inicializada com literal }*
 ((DONE) (ACC 5 +) IF) *{ decisao guiada por memoria logica }*
 ((DONE) (ACC 1 -) WHILE) *{ repeticao guiada por memoria logica }*
 ((DONE NOT) (ACC 1 +) IF) *{ decisao com NOT de memoria logica }*

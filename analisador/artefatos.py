@@ -34,14 +34,15 @@ def _escrever_texto(caminho: Path, texto: str) -> int:
 def _escrever_tabela(tabela_simbolos: ResultadoTabelaSimbolos) -> int:
     linhas = [
         "# Tabela de simbolos\n\n",
-        "| Identificador | Tipo | Escopo | Linha definicao | Linhas de uso |\n",
-        "|---|---|---|---:|---|\n",
+        "| Identificador | Tipo | Escopo | Linha definicao | Linha ultimo uso | Linhas de uso |\n",
+        "|---|---|---|---:|---:|---|\n",
     ]
     for simbolo in tabela_simbolos.simbolos:
         usos = "-" if not simbolo.linhas_uso else ", ".join(str(uso) for uso in simbolo.linhas_uso)
         linhas.append(
             f"| {simbolo.identificador} | {nome_tipo_dado(simbolo.tipo)} | "
-            f"{simbolo.escopo} | {simbolo.linha_definicao} | {usos} |\n"
+            f"{simbolo.escopo} | {simbolo.linha_definicao} | "
+            f"{simbolo.linha_ultimo_uso} | {usos} |\n"
         )
     return _escrever_texto(RESULTADOS_DIR / "tabela_simbolos.md", "".join(linhas))
 
@@ -61,10 +62,11 @@ def _escrever_erros(erros: list[ErroAnalise]) -> int:
 def _escrever_no(no: NoAst | None, nivel: int, linhas: list[str]) -> None:
     if no is None:
         return
+    simbolo = no.valor if no.tipo.name in {"VARIAVEL", "ATRIBUICAO"} and no.valor else "-"
     linhas.append(
         f"{'  ' * nivel}- {nome_tipo_no(no.tipo)} valor=`{no.valor}` "
         f"operador=`{no.operador}` tipo={nome_tipo_dado(no.tipo_dado)} "
-        f"linha={no.linha}\n"
+        f"linha={no.linha} simbolo=`{simbolo}`\n"
     )
     _escrever_no(no.esquerda, nivel + 1, linhas)
     _escrever_no(no.direita, nivel + 1, linhas)
@@ -105,10 +107,14 @@ def salvarArtefatosUltimaExecucao(
     falhou |= _escrever_tabela(tabela_simbolos)
     falhou |= _escrever_erros(erros_semanticos)
     falhou |= _escrever_arvore(arvore_atribuida)
-    falhou |= _escrever_texto(
-        RESULTADOS_DIR / "codigo_assembly_ultima_execucao.s",
-        assembly or "@ GERADO: nenhum Assembly disponivel nesta execucao.\n",
-    )
+    caminho_assembly = RESULTADOS_DIR / "codigo_assembly_ultima_execucao.s"
+    if assembly:
+        falhou |= _escrever_texto(caminho_assembly, assembly)
+    elif not caminho_assembly.exists():
+        falhou |= _escrever_texto(
+            caminho_assembly,
+            "@ GERADO: nenhum Assembly valido executado ate o momento.\n",
+        )
     falhou |= _escrever_texto(
         RESULTADOS_DIR / "relatorio_execucao.md",
         "# Relatorio final de execucao\n\n"

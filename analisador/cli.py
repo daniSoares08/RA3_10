@@ -14,7 +14,7 @@ from analisador.arvore_atribuida import gerarArvoreAtribuida
 from analisador.artefatos import salvarArtefatosUltimaExecucao
 from analisador.assembly import gerarAssembly
 from analisador.entrada import prepararEntradaSemantica
-from analisador.modelos import adicionar_erro
+from analisador.modelos import ResultadoTabelaSimbolos, ResultadoTipos, adicionar_erro
 from analisador.tabela_simbolos import construirTabelaSimbolos
 from analisador.tipos import verificarTipos
 
@@ -28,8 +28,13 @@ def main(argv=None):
 
     arquivo_teste = argumentos[0]
     entrada = prepararEntradaSemantica(arquivo_teste)
-    tabela = construirTabelaSimbolos(entrada.arvore)
-    tipos = verificarTipos(entrada.arvore, tabela)
+    erros_pre_semantica = [*entrada.erros_lexicos, *entrada.erros_sintaticos]
+    if erros_pre_semantica:
+        tabela = ResultadoTabelaSimbolos()
+        tipos = ResultadoTipos()
+    else:
+        tabela = construirTabelaSimbolos(entrada.arvore)
+        tipos = verificarTipos(entrada.arvore, tabela)
     arvore_atribuida = gerarArvoreAtribuida(entrada.arvore, tabela, tipos)
 
     # Erros de declaracao (tabela de simbolos) e de tipos (verificarTipos) sao
@@ -38,11 +43,7 @@ def main(argv=None):
         [*tabela.erros_semanticos, *tipos.erros_semanticos],
         key=lambda erro: erro.linha,
     )
-    erros = [
-        *entrada.erros_lexicos,
-        *entrada.erros_sintaticos,
-        *erros_semanticos,
-    ]
+    erros = [*erros_pre_semantica, *erros_semanticos]
 
     assembly = ""
     if not erros:
@@ -51,7 +52,7 @@ def main(argv=None):
     status = salvarArtefatosUltimaExecucao(
         arquivo_teste,
         tabela,
-        erros,
+        erros_semanticos,
         arvore_atribuida,
         assembly,
     )
@@ -66,7 +67,7 @@ def main(argv=None):
     print(f"Arquivo analisado: {arquivo_teste}")
     print(f"Resultado da analise lexica: {len(entrada.erros_lexicos)} erro(s)")
     print(f"Resultado da analise sintatica: {len(entrada.erros_sintaticos)} erro(s)")
-    print(f"Resultado da analise semantica: {len(erros)} erro(s) total(is)")
+    print(f"Resultado da analise semantica: {len(erros_semanticos)} erro(s)")
     print("Lista de erros encontrados:")
     if not erros:
         print("- nenhum erro registrado")

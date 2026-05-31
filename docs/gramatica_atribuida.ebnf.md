@@ -4,7 +4,7 @@ Convencao (Secao 3.1 do enunciado): **nao-terminais em letras minusculas** e
 **terminais em letras maiusculas** (ou simbolos literais entre aspas). Os terminais
 nomeados correspondem as classes de token produzidas pelo analisador lexico
 (`START`, `END`, `IF`, `WHILE`, `RES`, `TRUE`, `FALSE`, `AND`, `OR`, `NOT`,
-`NUMERO`, `IDENTIFICADOR`) ou a palavra-chave `MEM`.
+`NUMERO`, `IDENTIFICADOR`).
 
 ```ebnf
 programa            ::= inicio lista_comando fim ;
@@ -19,7 +19,7 @@ expressao           ::= atomo
                       | atomo atomo operador_rel
                       | atomo atomo operador_logico_bin
                       | atomo operador_logico_un
-                      | atomo IDENTIFICADOR MEM
+                      | atomo IDENTIFICADOR
                       | NUMERO RES
                       | atomo atomo IF
                       | atomo atomo WHILE ;
@@ -36,13 +36,13 @@ operador_logico_bin ::= AND | OR ;
 operador_logico_un  ::= NOT ;
 ```
 
-Observacao: `MEM` e a palavra reservada do comando de definicao `(valor nome MEM)`;
-no analisador lexico ela chega como o identificador `"MEM"`.
+Observacao: no comando especial `(V MEM)` do enunciado, `MEM` representa o nome da
+memoria que esta sendo definida, nao uma palavra-chave literal.
 
 Regras semanticas associadas:
 
 - `IDENTIFICADOR` usado como leitura deve existir na tabela de simbolos.
-- `atomo IDENTIFICADOR MEM` define a variavel `IDENTIFICADOR` com o tipo de `atomo`.
+- `atomo IDENTIFICADOR` define a variavel `IDENTIFICADOR` com o tipo de `atomo`.
 - Uma variavel definida com um tipo nao pode ser redefinida com outro tipo.
 - `NUMERO RES` referencia resultado anterior.
 - `literal_logico` (`TRUE` ou `FALSE`) tem tipo `bool`.
@@ -58,5 +58,5 @@ literais inteiros, reais e logicos, alem de operacoes aritmeticas, relacionais e
 logicas. As palavras reservadas `TRUE`/`FALSE` sao os literais `bool`, e `AND`/`OR`/
 `NOT` sao os operadores logicos. Todas seguem o padrao de palavras-chave em maiusculas
 ja usado pela linguagem (`RES`, `START`, `END`, `IF`, `WHILE`) e, por serem
-reservadas, nao podem ser usadas como nomes de memoria (`MEM`). Alem dos literais e
+reservadas, nao podem ser usadas como nomes de memoria. Alem dos literais e
 operadores logicos, `bool` tambem e produzido por operadores relacionais.

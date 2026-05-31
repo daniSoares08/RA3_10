@@ -80,6 +80,8 @@ def validar_erros_semanticos() -> bool:
     _, _, bool_em_soma = _analisar("(START)\n(TRUE 1 +)\n(END)\n")
     _, _, and_invalido = _analisar("(START)\n(1 TRUE AND)\n(END)\n")
     _, _, not_invalido = _analisar("(START)\n(3 NOT)\n(END)\n")
+    _, _, redef_invalida = _analisar("(START)\n(10 X)\n(3.14 X)\n(END)\n")
+    _, _, definicao_valida = _analisar("(START)\n(10 X)\n(X)\n(END)\n")
     _, _, logico_valido = _analisar("(START)\n(TRUE FALSE OR)\n(FALSE NOT)\n(END)\n")
     _, _, valido = _analisar("(START)\n(1 2 +)\n(END)\n")
     ok = True
@@ -87,6 +89,8 @@ def validar_erros_semanticos() -> bool:
     ok &= _verificar(len(bool_em_soma) > 0, "literal logico em soma gera erro semantico")
     ok &= _verificar(len(and_invalido) > 0, "AND com operando nao logico gera erro semantico")
     ok &= _verificar(len(not_invalido) > 0, "NOT com operando nao logico gera erro semantico")
+    ok &= _verificar(len(redef_invalida) > 0, "redefinicao com tipo incompativel gera erro")
+    ok &= _verificar(len(definicao_valida) == 0, "definicao (valor NOME) e leitura sao validas")
     ok &= _verificar(len(logico_valido) == 0, "operadores logicos sobre bool sao validos")
     ok &= _verificar(len(valido) == 0, "expressao numerica valida nao gera erro")
     return ok

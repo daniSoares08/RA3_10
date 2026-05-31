@@ -50,7 +50,7 @@ python -m py_compile AnalisadorSemantico.py funcoes_teste_semantico.py analisado
 - `analisador/cli.py`: coordena a execucao completa.
 - `analisador/entrada.py`: leitura do arquivo, lexer, tratamento de comentarios, parser e arvore sintatica inicial.
 - `analisador/modelos.py`: tokens, nos da AST, erros, simbolos e resultados compartilhados.
-- `analisador/tabela_simbolos.py`: tabela de simbolos e erros de declaracao — uso de variavel antes da definicao, redefinicao incompativel de tipo e referencias `RES`. Tambem infere e anota os tipos dos nos.
+- `analisador/tabela_simbolos.py`: tabela de simbolos e erros de declaracao - uso de variavel antes da definicao, redefinicao incompativel de tipo e referencias `RES`. Tambem infere e anota os tipos dos nos.
 - `analisador/tipos.py`: `verificarTipos()` valida a compatibilidade de tipos nas operacoes (aritmeticas, relacionais e logicas) e nas condicoes de `IF`/`WHILE`.
 - `analisador/arvore_atribuida.py`: arvore sintatica atribuida.
 - `analisador/assembly.py`: geracao de Assembly ARMv7 para entradas validas.
@@ -65,7 +65,7 @@ A sintaxe segue a linguagem usada no RA2_12:
 - Todo programa comeca com `(START)` e termina com `(END)`.
 - Comentarios comecam em `*{` e terminam em `}*`.
 - Expressoes usam RPN e podem ser aninhadas.
-- Variavel e definida com `(valor VAR MEM)`.
+- Variavel e definida com `(valor VAR)`, em que `VAR` e o nome da memoria.
 - Variavel e lida com `(VAR)`.
 - Resultado anterior e lido com `(N RES)`.
 - Literais logicos: `TRUE` e `FALSE`, ambos do tipo `bool`.
@@ -84,8 +84,8 @@ Operadores relacionais:
 
 Operadores logicos:
 
-- `AND`, `OR` (binarios): `(a b AND)`, `(a b OR)` — exigem dois operandos `bool` e resultam em `bool`.
-- `NOT` (unario): `(a NOT)` — exige um operando `bool` e resulta em `bool`.
+- `AND`, `OR` (binarios): `(a b AND)`, `(a b OR)` - exigem dois operandos `bool` e resultam em `bool`.
+- `NOT` (unario): `(a NOT)` - exige um operando `bool` e resulta em `bool`.
 
 ## Tipos suportados
 
@@ -102,9 +102,9 @@ memoria (`MEM`), exatamente como ja ocorre com `RES`.
 
 ## Regras para definicao e uso de variaveis
 
-- Uma variavel e **definida** com o comando `(valor NOME MEM)`. `NOME` e formado
+- Uma variavel e **definida** com o comando `(valor NOME)`. `NOME` e formado
   apenas por letras latinas maiusculas e nao pode ser uma palavra reservada
-  (`START`, `END`, `RES`, `IF`, `WHILE`, `TRUE`, `FALSE`, `AND`, `OR`, `NOT`, `MEM`).
+  (`START`, `END`, `RES`, `IF`, `WHILE`, `TRUE`, `FALSE`, `AND`, `OR`, `NOT`).
 - O **tipo** da variavel e inferido a partir do `valor` no momento da definicao.
   A tipagem e **estatica e forte**: o tipo nao muda depois de definido.
 - O valor e **lido** com `(NOME)`. Usar uma variavel antes de defini-la e um erro
@@ -118,11 +118,11 @@ memoria (`MEM`), exatamente como ja ocorre com `RES`.
 
 ```text
 (START)
-(10 X MEM)            *{ define X : inteiro }*
+(10 X)                *{ define X : inteiro }*
 (X)                   *{ le X }*
 ((X 5 >) (X 2 *) IF)  *{ decisao com condicao bool (relacional) }*
-(TRUE FLAG MEM)       *{ define FLAG : bool }*
-((FLAG) (1 1 +) WHILE) *{ repeticao com condicao bool (memoria logica) }*
+(TRUE FLAG)           *{ define FLAG : bool }*
+((FLAG) (FALSE FLAG) WHILE) *{ repeticao com condicao bool (memoria logica) }*
 ((FLAG (X 0 >) AND) (X 1 -) IF) *{ condicao com operador logico AND }*
 (END)
 ```
@@ -137,8 +137,8 @@ entao o programa passa na analise semantica e gera Assembly.
 (Y)                   *{ erro: variavel usada antes da definicao }*
 (TRUE 1 +)            *{ erro: operacao aritmetica com operando bool }*
 ((1 2 +) (3 4 +) IF)  *{ erro: condicao de IF nao e bool }*
-(10 Z MEM)
-(3.14 Z MEM)          *{ erro: redefinicao de inteiro para real }*
+(10 Z)
+(3.14 Z)              *{ erro: redefinicao de inteiro para real }*
 (END)
 ```
 

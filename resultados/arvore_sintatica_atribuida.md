@@ -1,89 +1,79 @@
 # Arvore sintatica atribuida
 
-Arvore atribuida com 2 simbolo(s) e 85 tipo(s) anotado(s).
+Arvore atribuida com 2 simbolo(s) e 75 tipo(s) anotado(s).
 
-- PROGRAMA valor=`PROGRAMA` operador=`` tipo=desconhecido linha=1
-  - BINARIO valor=`` operador=`+` tipo=real linha=3
-    - NUMERO valor=`3.14` operador=`` tipo=real linha=3
-    - NUMERO valor=`2.0` operador=`` tipo=real linha=3
-  - BINARIO valor=`` operador=`/` tipo=inteiro linha=4
-    - NUMERO valor=`10` operador=`` tipo=inteiro linha=4
-    - NUMERO valor=`3` operador=`` tipo=inteiro linha=4
-  - BINARIO valor=`` operador=`%` tipo=inteiro linha=5
-    - NUMERO valor=`9` operador=`` tipo=inteiro linha=5
-    - NUMERO valor=`4` operador=`` tipo=inteiro linha=5
-  - BINARIO valor=`` operador=`^` tipo=inteiro linha=6
-    - NUMERO valor=`2` operador=`` tipo=inteiro linha=6
-    - NUMERO valor=`8` operador=`` tipo=inteiro linha=6
-  - BINARIO valor=`` operador=`|` tipo=real linha=7
-    - NUMERO valor=`7.0` operador=`` tipo=real linha=7
-    - NUMERO valor=`2.0` operador=`` tipo=real linha=7
-  - BINARIO valor=`` operador=`-` tipo=real linha=8
-    - NUMERO valor=`5.0` operador=`` tipo=real linha=8
-    - NUMERO valor=`1.5` operador=`` tipo=real linha=8
-  - BINARIO valor=`` operador=`*` tipo=inteiro linha=9
-    - NUMERO valor=`4` operador=`` tipo=inteiro linha=9
-    - NUMERO valor=`3` operador=`` tipo=inteiro linha=9
-  - ATRIBUICAO valor=`VAR` operador=`` tipo=inteiro linha=10
-    - NUMERO valor=`42` operador=`` tipo=inteiro linha=10
-  - VARIAVEL valor=`VAR` operador=`` tipo=inteiro linha=11
-  - RES valor=`2` operador=`` tipo=inteiro linha=12
-  - IF valor=`IF` operador=`` tipo=inteiro linha=13
-    - BINARIO valor=`` operador=`<` tipo=bool linha=13
-      - NUMERO valor=`1` operador=`` tipo=inteiro linha=13
-      - NUMERO valor=`2` operador=`` tipo=inteiro linha=13
-    - BINARIO valor=`` operador=`+` tipo=inteiro linha=13
-      - NUMERO valor=`3` operador=`` tipo=inteiro linha=13
-      - NUMERO valor=`4` operador=`` tipo=inteiro linha=13
-  - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=14
-    - BINARIO valor=`` operador=`>` tipo=bool linha=14
-      - VARIAVEL valor=`VAR` operador=`` tipo=inteiro linha=14
-      - NUMERO valor=`0` operador=`` tipo=inteiro linha=14
-    - BINARIO valor=`` operador=`-` tipo=inteiro linha=14
-      - VARIAVEL valor=`VAR` operador=`` tipo=inteiro linha=14
-      - NUMERO valor=`1` operador=`` tipo=inteiro linha=14
-  - ATRIBUICAO valor=`FLAG` operador=`` tipo=bool linha=15
-    - LOGICO valor=`TRUE` operador=`` tipo=bool linha=15
-  - VARIAVEL valor=`FLAG` operador=`` tipo=bool linha=16
-  - IF valor=`IF` operador=`` tipo=inteiro linha=17
-    - VARIAVEL valor=`FLAG` operador=`` tipo=bool linha=17
-    - BINARIO valor=`` operador=`*` tipo=inteiro linha=17
-      - NUMERO valor=`8` operador=`` tipo=inteiro linha=17
-      - NUMERO valor=`2` operador=`` tipo=inteiro linha=17
-  - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=18
-    - VARIAVEL valor=`FLAG` operador=`` tipo=bool linha=18
-    - BINARIO valor=`` operador=`+` tipo=inteiro linha=18
-      - NUMERO valor=`1` operador=`` tipo=inteiro linha=18
-      - NUMERO valor=`1` operador=`` tipo=inteiro linha=18
-  - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=19
-    - LOGICO valor=`FALSE` operador=`` tipo=bool linha=19
-    - BINARIO valor=`` operador=`+` tipo=inteiro linha=19
-      - NUMERO valor=`1` operador=`` tipo=inteiro linha=19
-      - NUMERO valor=`1` operador=`` tipo=inteiro linha=19
-  - BINARIO valor=`` operador=`OR` tipo=bool linha=20
-    - LOGICO valor=`TRUE` operador=`` tipo=bool linha=20
-    - LOGICO valor=`FALSE` operador=`` tipo=bool linha=20
-  - BINARIO valor=`` operador=`AND` tipo=bool linha=21
-    - LOGICO valor=`TRUE` operador=`` tipo=bool linha=21
-    - LOGICO valor=`TRUE` operador=`` tipo=bool linha=21
-  - UNARIO valor=`` operador=`NOT` tipo=bool linha=22
-    - LOGICO valor=`FALSE` operador=`` tipo=bool linha=22
-  - IF valor=`IF` operador=`` tipo=inteiro linha=23
-    - BINARIO valor=`` operador=`OR` tipo=bool linha=23
-      - BINARIO valor=`` operador=`<` tipo=bool linha=23
-        - NUMERO valor=`1` operador=`` tipo=inteiro linha=23
-        - NUMERO valor=`2` operador=`` tipo=inteiro linha=23
-      - BINARIO valor=`` operador=`>` tipo=bool linha=23
-        - NUMERO valor=`3` operador=`` tipo=inteiro linha=23
-        - NUMERO valor=`4` operador=`` tipo=inteiro linha=23
-    - BINARIO valor=`` operador=`+` tipo=inteiro linha=23
-      - NUMERO valor=`5` operador=`` tipo=inteiro linha=23
-      - NUMERO valor=`6` operador=`` tipo=inteiro linha=23
-  - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=24
-    - UNARIO valor=`` operador=`NOT` tipo=bool linha=24
-      - BINARIO valor=`` operador=`>` tipo=bool linha=24
-        - VARIAVEL valor=`VAR` operador=`` tipo=inteiro linha=24
-        - NUMERO valor=`0` operador=`` tipo=inteiro linha=24
-    - BINARIO valor=`` operador=`-` tipo=inteiro linha=24
-      - VARIAVEL valor=`VAR` operador=`` tipo=inteiro linha=24
-      - NUMERO valor=`1` operador=`` tipo=inteiro linha=24
+- PROGRAMA valor=`PROGRAMA` operador=`` tipo=desconhecido linha=1 simbolo=`-`
+  - ATRIBUICAO valor=`ACC` operador=`` tipo=inteiro linha=3 simbolo=`ACC`
+    - NUMERO valor=`100` operador=`` tipo=inteiro linha=3 simbolo=`-`
+  - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=4 simbolo=`ACC`
+  - IF valor=`IF` operador=`` tipo=inteiro linha=5 simbolo=`-`
+    - BINARIO valor=`` operador=`>` tipo=bool linha=5 simbolo=`-`
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=5 simbolo=`ACC`
+      - NUMERO valor=`50` operador=`` tipo=inteiro linha=5 simbolo=`-`
+    - BINARIO valor=`` operador=`/` tipo=inteiro linha=5 simbolo=`-`
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=5 simbolo=`ACC`
+      - NUMERO valor=`2` operador=`` tipo=inteiro linha=5 simbolo=`-`
+  - BINARIO valor=`` operador=`|` tipo=real linha=6 simbolo=`-`
+    - NUMERO valor=`7.0` operador=`` tipo=real linha=6 simbolo=`-`
+    - NUMERO valor=`2.0` operador=`` tipo=real linha=6 simbolo=`-`
+  - BINARIO valor=`` operador=`+` tipo=inteiro linha=7 simbolo=`-`
+    - BINARIO valor=`` operador=`*` tipo=inteiro linha=7 simbolo=`-`
+      - NUMERO valor=`3` operador=`` tipo=inteiro linha=7 simbolo=`-`
+      - NUMERO valor=`4` operador=`` tipo=inteiro linha=7 simbolo=`-`
+    - BINARIO valor=`` operador=`+` tipo=inteiro linha=7 simbolo=`-`
+      - NUMERO valor=`5` operador=`` tipo=inteiro linha=7 simbolo=`-`
+      - NUMERO valor=`6` operador=`` tipo=inteiro linha=7 simbolo=`-`
+  - BINARIO valor=`` operador=`%` tipo=inteiro linha=8 simbolo=`-`
+    - NUMERO valor=`9` operador=`` tipo=inteiro linha=8 simbolo=`-`
+    - NUMERO valor=`4` operador=`` tipo=inteiro linha=8 simbolo=`-`
+  - BINARIO valor=`` operador=`^` tipo=inteiro linha=9 simbolo=`-`
+    - NUMERO valor=`2` operador=`` tipo=inteiro linha=9 simbolo=`-`
+    - NUMERO valor=`8` operador=`` tipo=inteiro linha=9 simbolo=`-`
+  - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=10 simbolo=`-`
+    - BINARIO valor=`` operador=`>` tipo=bool linha=10 simbolo=`-`
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=10 simbolo=`ACC`
+      - NUMERO valor=`0` operador=`` tipo=inteiro linha=10 simbolo=`-`
+    - ATRIBUICAO valor=`ACC` operador=`` tipo=inteiro linha=10 simbolo=`ACC`
+      - BINARIO valor=`` operador=`-` tipo=inteiro linha=10 simbolo=`-`
+        - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=10 simbolo=`ACC`
+        - NUMERO valor=`1` operador=`` tipo=inteiro linha=10 simbolo=`-`
+  - RES valor=`3` operador=`` tipo=inteiro linha=11 simbolo=`-`
+  - ATRIBUICAO valor=`DONE` operador=`` tipo=bool linha=12 simbolo=`DONE`
+    - LOGICO valor=`FALSE` operador=`` tipo=bool linha=12 simbolo=`-`
+  - IF valor=`IF` operador=`` tipo=inteiro linha=13 simbolo=`-`
+    - VARIAVEL valor=`DONE` operador=`` tipo=bool linha=13 simbolo=`DONE`
+    - BINARIO valor=`` operador=`+` tipo=inteiro linha=13 simbolo=`-`
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=13 simbolo=`ACC`
+      - NUMERO valor=`5` operador=`` tipo=inteiro linha=13 simbolo=`-`
+  - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=14 simbolo=`-`
+    - VARIAVEL valor=`DONE` operador=`` tipo=bool linha=14 simbolo=`DONE`
+    - BINARIO valor=`` operador=`-` tipo=inteiro linha=14 simbolo=`-`
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=14 simbolo=`ACC`
+      - NUMERO valor=`1` operador=`` tipo=inteiro linha=14 simbolo=`-`
+  - IF valor=`IF` operador=`` tipo=inteiro linha=15 simbolo=`-`
+    - UNARIO valor=`` operador=`NOT` tipo=bool linha=15 simbolo=`-`
+      - VARIAVEL valor=`DONE` operador=`` tipo=bool linha=15 simbolo=`DONE`
+    - BINARIO valor=`` operador=`+` tipo=inteiro linha=15 simbolo=`-`
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=15 simbolo=`ACC`
+      - NUMERO valor=`1` operador=`` tipo=inteiro linha=15 simbolo=`-`
+  - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=16 simbolo=`-`
+    - BINARIO valor=`` operador=`AND` tipo=bool linha=16 simbolo=`-`
+      - BINARIO valor=`` operador=`>` tipo=bool linha=16 simbolo=`-`
+        - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=16 simbolo=`ACC`
+        - NUMERO valor=`50` operador=`` tipo=inteiro linha=16 simbolo=`-`
+      - BINARIO valor=`` operador=`>` tipo=bool linha=16 simbolo=`-`
+        - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=16 simbolo=`ACC`
+        - NUMERO valor=`0` operador=`` tipo=inteiro linha=16 simbolo=`-`
+    - BINARIO valor=`` operador=`-` tipo=inteiro linha=16 simbolo=`-`
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=16 simbolo=`ACC`
+      - NUMERO valor=`10` operador=`` tipo=inteiro linha=16 simbolo=`-`
+  - IF valor=`IF` operador=`` tipo=inteiro linha=17 simbolo=`-`
+    - BINARIO valor=`` operador=`OR` tipo=bool linha=17 simbolo=`-`
+      - LOGICO valor=`TRUE` operador=`` tipo=bool linha=17 simbolo=`-`
+      - LOGICO valor=`FALSE` operador=`` tipo=bool linha=17 simbolo=`-`
+    - BINARIO valor=`` operador=`*` tipo=inteiro linha=17 simbolo=`-`
+      - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=17 simbolo=`ACC`
+      - NUMERO valor=`2` operador=`` tipo=inteiro linha=17 simbolo=`-`
+  - BINARIO valor=`` operador=`+` tipo=real linha=18 simbolo=`-`
+    - NUMERO valor=`3.14` operador=`` tipo=real linha=18 simbolo=`-`
+    - NUMERO valor=`2.0` operador=`` tipo=real linha=18 simbolo=`-`

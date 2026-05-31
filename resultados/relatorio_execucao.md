@@ -1,5 +1,5 @@
 # Relatorio final de execucao
 
-- Arquivo analisado: `teste1_valido.txt`
+- Arquivo analisado: `teste3_integracao.txt`
 - Simbolos registrados: 2
 - Erros registrados: 0
