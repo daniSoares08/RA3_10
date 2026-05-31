@@ -1,4 +1,4 @@
-# Trabalho realizado individualmente:
+# Integrantes do grupo (ordem alfabetica):
 # Daniel Campos Soares - daniSoares08
 #
 # Nome do grupo no Canvas: RA3_10
@@ -14,16 +14,9 @@ from analisador.arvore_atribuida import gerarArvoreAtribuida
 from analisador.artefatos import salvarArtefatosUltimaExecucao
 from analisador.assembly import gerarAssembly
 from analisador.entrada import prepararEntradaSemantica
-from analisador.modelos import ErroAnalise, adicionar_erro
+from analisador.modelos import adicionar_erro
 from analisador.tabela_simbolos import construirTabelaSimbolos
 from analisador.tipos import verificarTipos
-
-
-def _copiar_erros(*listas: list[ErroAnalise]) -> list[ErroAnalise]:
-    erros: list[ErroAnalise] = []
-    for lista in listas:
-        erros.extend(lista)
-    return erros
 
 
 def main(argv=None):
@@ -39,12 +32,17 @@ def main(argv=None):
     tipos = verificarTipos(entrada.arvore, tabela)
     arvore_atribuida = gerarArvoreAtribuida(entrada.arvore, tabela, tipos)
 
-    erros = _copiar_erros(
-        entrada.erros_lexicos,
-        entrada.erros_sintaticos,
-        tabela.erros_semanticos,
-        tipos.erros_semanticos,
+    # Erros de declaracao (tabela de simbolos) e de tipos (verificarTipos) sao
+    # combinados e ordenados por linha para manter a saida em ordem de codigo.
+    erros_semanticos = sorted(
+        [*tabela.erros_semanticos, *tipos.erros_semanticos],
+        key=lambda erro: erro.linha,
     )
+    erros = [
+        *entrada.erros_lexicos,
+        *entrada.erros_sintaticos,
+        *erros_semanticos,
+    ]
 
     assembly = ""
     if not erros:

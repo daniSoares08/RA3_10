@@ -2,4 +2,5 @@
 
 | Identificador | Tipo | Escopo | Linha definicao | Linhas de uso |
 |---|---|---|---:|---|
-| ACC | inteiro | arquivo | 3 | 4, 5, 5, 10, 10 |
+| VAR | inteiro | arquivo | 10 | 11, 14, 14, 24, 24 |
+| FLAG | bool | arquivo | 15 | 16, 17, 18 |

@@ -1,4 +1,4 @@
-# Trabalho realizado individualmente:
+# Integrantes do grupo (ordem alfabetica):
 # Daniel Campos Soares - daniSoares08
 #
 # Nome do grupo no Canvas: RA3_10
@@ -22,10 +22,13 @@ MAX_RESULTADOS = 256
 class TipoToken(Enum):
     ABRE_PAREN = "ABRE_PAREN"
     FECHA_PAREN = "FECHA_PAREN"
+    COMENTARIO = "COMENTARIO"
     NUMERO = "NUMERO"
+    LOGICO = "LOGICO"
     IDENTIFICADOR = "IDENTIFICADOR"
     OPERADOR_ARIT = "OPERADOR_ARIT"
     OPERADOR_REL = "OPERADOR_REL"
+    OPERADOR_LOGICO = "OPERADOR_LOGICO"
     RES = "RES"
     START = "START"
     END = "END"
@@ -38,10 +41,12 @@ class TipoToken(Enum):
 class TipoNo(Enum):
     PROGRAMA = "PROGRAMA"
     NUMERO = "NUMERO"
+    LOGICO = "LOGICO"
     VARIAVEL = "VARIAVEL"
     ATRIBUICAO = "ATRIBUICAO"
     RES = "RES"
     BINARIO = "BINARIO"
+    UNARIO = "UNARIO"
     IF = "IF"
     WHILE = "WHILE"
     INVALIDO = "INVALIDO"
@@ -94,6 +99,7 @@ class EntradaSemantica:
     arquivo: str = ""
     fonte: str = ""
     tokens: list[Token] = field(default_factory=list)
+    comentarios: list[Token] = field(default_factory=list)
     arvore: ArvoreSintatica = field(default_factory=ArvoreSintatica)
     erros_lexicos: list[ErroAnalise] = field(default_factory=list)
     erros_sintaticos: list[ErroAnalise] = field(default_factory=list)
@@ -180,3 +186,63 @@ def nome_tipo_dado(tipo: TipoDado) -> str:
 
 def tipo_numerico(tipo: TipoDado) -> bool:
     return tipo in (TipoDado.INTEIRO, TipoDado.REAL)
+
+
+def avaliar_operacao(
+    operador: str,
+    esquerdo: TipoDado,
+    direito: TipoDado,
+) -> tuple[TipoDado, str | None]:
+    """Calcula o tipo resultante de uma operacao binaria e a mensagem de erro.
+
+    Funcao pura (nao registra erros): devolve `(tipo, mensagem)`, onde `mensagem`
+    e `None` quando a operacao e valida. E compartilhada por
+    `construirTabelaSimbolos` (que usa o tipo para inferir/anotar) e por
+    `verificarTipos` (que usa a mensagem para reportar erros semanticos),
+    garantindo regras unicas e consistentes com o calculo de sequentes.
+    """
+    if operador in {">", "<", "==", "!=", ">=", "<="}:
+        if not tipo_numerico(esquerdo) or not tipo_numerico(direito):
+            return TipoDado.ERRO, "Operador relacional exige operandos numericos."
+        return TipoDado.BOOL, None
+
+    if operador in {"/", "%"}:
+        if esquerdo != TipoDado.INTEIRO or direito != TipoDado.INTEIRO:
+            return TipoDado.ERRO, f"Operador {operador} exige operandos inteiros."
+        return TipoDado.INTEIRO, None
+
+    if operador == "|":
+        if not tipo_numerico(esquerdo) or not tipo_numerico(direito):
+            return TipoDado.ERRO, "Divisao real exige operandos numericos."
+        return TipoDado.REAL, None
+
+    if operador in {"+", "-", "*", "^"}:
+        if not tipo_numerico(esquerdo) or not tipo_numerico(direito):
+            return TipoDado.ERRO, "Operador aritmetico exige operandos numericos."
+        if esquerdo == TipoDado.REAL or direito == TipoDado.REAL:
+            return TipoDado.REAL, None
+        return TipoDado.INTEIRO, None
+
+    if operador in {"AND", "OR"}:
+        if esquerdo != TipoDado.BOOL or direito != TipoDado.BOOL:
+            return TipoDado.ERRO, f"Operador {operador} exige operandos logicos (bool)."
+        return TipoDado.BOOL, None
+
+    return TipoDado.ERRO, "Operador nao reconhecido."
+
+
+def avaliar_operacao_unaria(
+    operador: str,
+    operando: TipoDado,
+) -> tuple[TipoDado, str | None]:
+    """Calcula o tipo resultante de uma operacao logica unaria (`NOT`).
+
+    Funcao pura, no mesmo espirito de `avaliar_operacao`: devolve
+    `(tipo, mensagem)`, com `mensagem` `None` quando a operacao e valida.
+    """
+    if operador == "NOT":
+        if operando != TipoDado.BOOL:
+            return TipoDado.ERRO, "Operador NOT exige operando logico (bool)."
+        return TipoDado.BOOL, None
+
+    return TipoDado.ERRO, "Operador unario nao reconhecido."

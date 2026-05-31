@@ -1,4 +1,4 @@
-# Trabalho realizado individualmente:
+# Integrantes do grupo (ordem alfabetica):
 # Daniel Campos Soares - daniSoares08
 #
 # Nome do grupo no Canvas: RA3_10
@@ -49,8 +49,19 @@ def _emitir_rotinas(texto: list[str]) -> None:
         "    vldr d0, [r0]\n"
         "    bx lr\n\n"
         "pop_d1:\n"
-        "    bl pop_d0\n"
-        "    vmov.f64 d1, d0\n"
+        "    ldr r1, =pilha_topo\n"
+        "    ldr r2, [r1]\n"
+        "    cmp r2, #0\n"
+        "    beq pop_d1_zero\n"
+        "    sub r2, r2, #8\n"
+        "    str r2, [r1]\n"
+        "    ldr r3, =pilha_valores\n"
+        "    add r3, r3, r2\n"
+        "    vldr d1, [r3]\n"
+        "    bx lr\n"
+        "pop_d1_zero:\n"
+        "    ldr r0, =const_zero_double\n"
+        "    vldr d1, [r0]\n"
         "    bx lr\n\n"
         "bool_from_r0:\n"
         "    cmp r0, #0\n"
@@ -163,6 +174,40 @@ def _emitir_operador(op: str, texto: list[str], estado: dict[str, int]) -> None:
             f"pow_fim_{label}:\n"
             "    bl push_d0\n"
         )
+    elif op in {"AND", "OR"}:
+        label = estado["label"]
+        estado["label"] += 1
+        texto.append(
+            "    ldr r0, =const_zero_double\n"
+            "    vldr d2, [r0]\n"
+            "    vcmp.f64 d0, d2\n"
+            "    vmrs APSR_nzcv, FPSCR\n"
+        )
+        if op == "AND":
+            texto.append(
+                f"    beq logico_falso_{label}\n"
+                "    vcmp.f64 d1, d2\n"
+                "    vmrs APSR_nzcv, FPSCR\n"
+                f"    beq logico_falso_{label}\n"
+                "    mov r0, #1\n"
+                f"    b logico_fim_{label}\n"
+                f"logico_falso_{label}:\n"
+                "    mov r0, #0\n"
+                f"logico_fim_{label}:\n"
+            )
+        else:
+            texto.append(
+                f"    bne logico_verd_{label}\n"
+                "    vcmp.f64 d1, d2\n"
+                "    vmrs APSR_nzcv, FPSCR\n"
+                f"    bne logico_verd_{label}\n"
+                "    mov r0, #0\n"
+                f"    b logico_fim_{label}\n"
+                f"logico_verd_{label}:\n"
+                "    mov r0, #1\n"
+                f"logico_fim_{label}:\n"
+            )
+        texto.append("    bl bool_from_r0\n    bl push_d0\n")
     else:
         label = estado["label"]
         estado["label"] += 1
@@ -203,6 +248,14 @@ def _emitir_no(no: NoAst | None, data: list[str], texto: list[str], estado: dict
             "    bl push_d0\n"
         )
         estado["constante"] += 1
+    elif no.tipo == TipoNo.LOGICO:
+        rotulo = "const_one_double" if no.valor == "TRUE" else "const_zero_double"
+        texto.append(
+            f"    @ literal logico {no.valor}\n"
+            f"    ldr r0, ={rotulo}\n"
+            "    vldr d0, [r0]\n"
+            "    bl push_d0\n"
+        )
     elif no.tipo == TipoNo.VARIAVEL:
         texto.append(f"    ldr r0, =mem_{no.valor}\n    vldr d0, [r0]\n    bl push_d0\n")
     elif no.tipo == TipoNo.ATRIBUICAO:
@@ -214,14 +267,50 @@ def _emitir_no(no: NoAst | None, data: list[str], texto: list[str], estado: dict
             "    bl push_d0\n"
         )
     elif no.tipo == TipoNo.RES:
-        texto.append(
-            f"    @ RES {no.valor}: valor recuperado dos resultados anteriores deve ser ligado ao historico\n"
-        )
-        texto.append("    ldr r0, =const_zero_double\n    vldr d0, [r0]\n    bl push_d0\n")
+        try:
+            deslocamento = int(no.valor)
+        except (TypeError, ValueError):
+            deslocamento = 0
+        alvo = estado["comando"] - deslocamento
+        if alvo < 0:
+            # Salvaguarda: a analise semantica ja garante deslocamento valido,
+            # entao este ramo so existe para robustez.
+            texto.append(
+                f"    @ RES {no.valor}: referencia invalida, empilha 0.0\n"
+                "    ldr r0, =const_zero_double\n"
+                "    vldr d0, [r0]\n"
+                "    bl push_d0\n"
+            )
+        else:
+            texto.append(
+                f"    @ RES {no.valor}: resultado do comando {alvo}\n"
+                f"    ldr r0, =resultado_{alvo}\n"
+                "    vldr d0, [r0]\n"
+                "    bl push_d0\n"
+            )
     elif no.tipo == TipoNo.BINARIO:
         _emitir_no(no.esquerda, data, texto, estado)
         _emitir_no(no.direita, data, texto, estado)
         _emitir_operador(no.operador, texto, estado)
+    elif no.tipo == TipoNo.UNARIO:
+        _emitir_no(no.esquerda, data, texto, estado)
+        label = estado["label"]
+        estado["label"] += 1
+        texto.append(
+            "    bl pop_d0\n"
+            "    ldr r0, =const_zero_double\n"
+            "    vldr d1, [r0]\n"
+            "    vcmp.f64 d0, d1\n"
+            "    vmrs APSR_nzcv, FPSCR\n"
+            f"    beq not_verd_{label}\n"
+            "    mov r0, #0\n"
+            f"    b not_fim_{label}\n"
+            f"not_verd_{label}:\n"
+            "    mov r0, #1\n"
+            f"not_fim_{label}:\n"
+            "    bl bool_from_r0\n"
+            "    bl push_d0\n"
+        )
     elif no.tipo == TipoNo.IF:
         label = estado["label"]
         estado["label"] += 1
@@ -263,6 +352,14 @@ def gerarAssembly(arvoreAtribuida: ArvoreAtribuida | None):
     variaveis: list[str] = []
     _coletar_variaveis(arvoreAtribuida.raiz, variaveis)
 
+    # Conta os comandos de topo para reservar um slot de resultado por comando,
+    # usado pela recuperacao de (N RES).
+    total_comandos = 0
+    comando = arvoreAtribuida.raiz.esquerda
+    while comando is not None:
+        total_comandos += 1
+        comando = comando.proximo
+
     data = [
         ".data\n.align 3\n",
         "const_zero_double: .double 0.0\n",
@@ -271,6 +368,8 @@ def gerarAssembly(arvoreAtribuida: ArvoreAtribuida | None):
     ]
     for nome in variaveis:
         data.append(f"mem_{nome}: .double 0.0\n")
+    for indice in range(total_comandos):
+        data.append(f"resultado_{indice}: .double 0.0\n")
     data.append("pilha_topo: .word 0\n")
     data.append("pilha_valores: .space 4096\n\n")
 
@@ -285,10 +384,22 @@ def gerarAssembly(arvoreAtribuida: ArvoreAtribuida | None):
         "    str r1, [r0]\n"
     ]
 
-    estado = {"constante": 0, "label": 0}
+    estado = {"constante": 0, "label": 0, "comando": 0}
+    indice = 0
     comando = arvoreAtribuida.raiz.esquerda
     while comando is not None:
+        estado["comando"] = indice
+        texto.append(f"    @ ---- comando {indice} ----\n")
+        # Reinicia a pilha para isolar o resultado de cada comando de topo.
+        texto.append("    ldr r0, =pilha_topo\n    mov r1, #0\n    str r1, [r0]\n")
         _emitir_no(comando, data, texto, estado)
+        # Salva o resultado do comando no historico para uso por (N RES).
+        texto.append(
+            "    bl pop_d0\n"
+            f"    ldr r0, =resultado_{indice}\n"
+            "    vstr d0, [r0]\n"
+        )
+        indice += 1
         comando = comando.proximo
 
     texto.append("fim:\n    b fim\n")

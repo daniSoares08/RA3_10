@@ -9,5 +9,11 @@
 (2 8 ^)
 ((ACC 0 >) (ACC 1 -) WHILE)
 (3 RES)
+(FALSE DONE MEM) *{ memoria logica inicializada com literal }*
+((DONE) (ACC 5 +) IF) *{ decisao guiada por memoria logica }*
+((DONE) (ACC 1 -) WHILE) *{ repeticao guiada por memoria logica }*
+((DONE NOT) (ACC 1 +) IF) *{ decisao com NOT de memoria logica }*
+(((ACC 50 >) (ACC 0 >) AND) (ACC 10 -) WHILE) *{ repeticao com AND de relacionais }*
+((TRUE FALSE OR) (ACC 2 *) IF) *{ decisao com OR de literais logicos }*
 (3.14 2.0 +) *{ comentario no final }*
 (END)

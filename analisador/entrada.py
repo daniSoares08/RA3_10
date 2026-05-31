@@ -1,4 +1,4 @@
-# Trabalho realizado individualmente:
+# Integrantes do grupo (ordem alfabetica):
 # Daniel Campos Soares - daniSoares08
 #
 # Nome do grupo no Canvas: RA3_10
@@ -59,6 +59,23 @@ def _adicionar_token(
     entrada.tokens.append(Token(tipo=tipo, lexema=lexema[:127], linha=linha, coluna=coluna))
 
 
+def _registrar_comentario(
+    entrada: EntradaSemantica,
+    lexema: str,
+    linha: int,
+    coluna: int,
+) -> None:
+    """Registra um comentario como token COMENTARIO fora do vetor do parser.
+
+    A Secao 2.1 do enunciado pede que o lexer trate comentarios como tokens de
+    tipo "comentario" e os descarte do vetor usado pelo analisador sintatico.
+    Por isso eles entram em `entrada.comentarios`, e nunca em `entrada.tokens`.
+    """
+    entrada.comentarios.append(
+        Token(tipo=TipoToken.COMENTARIO, lexema=lexema[:127], linha=linha, coluna=coluna)
+    )
+
+
 def _eh_operador_arit(c: str) -> bool:
     return c in {"+", "-", "*", "|", "/", "%", "^"}
 
@@ -70,6 +87,11 @@ def _tipo_identificador(lexema: str) -> TipoToken:
         "END": TipoToken.END,
         "IF": TipoToken.IF,
         "WHILE": TipoToken.WHILE,
+        "TRUE": TipoToken.LOGICO,
+        "FALSE": TipoToken.LOGICO,
+        "AND": TipoToken.OPERADOR_LOGICO,
+        "OR": TipoToken.OPERADOR_LOGICO,
+        "NOT": TipoToken.OPERADOR_LOGICO,
     }
     return palavras.get(lexema, TipoToken.IDENTIFICADOR)
 
@@ -98,6 +120,8 @@ def _tokenizar(entrada: EntradaSemantica) -> int:
 
         if c == "*" and _char(fonte, i + 1) == "{":
             linha_inicio = linha
+            coluna_inicio = coluna
+            inicio = i
             i += 2
             coluna += 2
             while i < len(fonte) and not (fonte[i] == "}" and _char(fonte, i + 1) == "*"):
@@ -118,6 +142,9 @@ def _tokenizar(entrada: EntradaSemantica) -> int:
                 return 1
             i += 2
             coluna += 2
+            # Comentario reconhecido como token COMENTARIO e descartado do vetor
+            # do parser (Secao 2.1): registrado a parte em entrada.comentarios.
+            _registrar_comentario(entrada, fonte[inicio:i], linha_inicio, coluna_inicio)
             continue
 
         if c == "(":
@@ -244,10 +271,17 @@ def _parse_item(parser: Parser) -> NoAst:
     if token.tipo == TipoToken.NUMERO:
         parser.posicao += 1
         return criar_no(TipoNo.NUMERO, token.lexema, token.linha)
+    if token.tipo == TipoToken.LOGICO:
+        parser.posicao += 1
+        return criar_no(TipoNo.LOGICO, token.lexema, token.linha)
     if token.tipo == TipoToken.IDENTIFICADOR:
         parser.posicao += 1
         return criar_no(TipoNo.VARIAVEL, token.lexema, token.linha)
-    if token.tipo in (TipoToken.OPERADOR_ARIT, TipoToken.OPERADOR_REL):
+    if token.tipo in (
+        TipoToken.OPERADOR_ARIT,
+        TipoToken.OPERADOR_REL,
+        TipoToken.OPERADOR_LOGICO,
+    ):
         parser.posicao += 1
         no = criar_no(TipoNo.BINARIO, None, token.linha)
         no.operador = token.lexema
@@ -262,7 +296,11 @@ def _parse_item(parser: Parser) -> NoAst:
         parser.posicao += 1
         return criar_no(TipoNo.WHILE, token.lexema, token.linha)
 
-    _erro_sintatico(parser, "expressao, identificador, numero, operador, IF, WHILE ou RES")
+    _erro_sintatico(
+        parser,
+        "expressao, identificador, numero, literal logico, operador, "
+        "AND/OR/NOT, IF, WHILE ou RES",
+    )
     parser.posicao += 1
     return criar_no(TipoNo.INVALIDO, token.lexema, token.linha)
 
@@ -284,6 +322,13 @@ def _item_operador(no: NoAst | None) -> bool:
 def _montar_expressao(parser: Parser, itens: list[NoAst], linha: int) -> NoAst:
     if len(itens) == 1:
         return itens[0]
+
+    # Operador logico unario: (expressao NOT).
+    if len(itens) == 2 and _item_operador(itens[1]) and itens[1].operador == "NOT":
+        resultado = criar_no(TipoNo.UNARIO, None, itens[1].linha)
+        resultado.operador = "NOT"
+        resultado.esquerda = itens[0]
+        return resultado
 
     if len(itens) == 2 and itens[0].tipo == TipoNo.NUMERO and itens[1].tipo == TipoNo.RES:
         return criar_no(TipoNo.RES, itens[0].valor, itens[0].linha)
@@ -395,12 +440,25 @@ def _resolver_caminho(arquivo: str) -> Path:
     return caminho_raiz
 
 
+def analisarFonte(fonte, arquivo="<memoria>"):
+    """Tokeniza e analisa sintaticamente um codigo-fonte ja carregado em memoria.
+
+    Usada por prepararEntradaSemantica() e pelas funcoes de teste, que precisam
+    exercitar o lexer e o parser sem depender de um arquivo em disco.
+    """
+    entrada = EntradaSemantica(arquivo=str(arquivo or ""))
+    entrada.fonte = str(fonte or "")
+    if _tokenizar(entrada) == 0:
+        _parse_programa(entrada)
+    return entrada
+
+
 def prepararEntradaSemantica(arquivo):
     """Carrega a entrada e prepara tokens/arvore para a etapa semantica."""
-    entrada = EntradaSemantica(arquivo=str(arquivo or ""))
     caminho = _resolver_caminho(str(arquivo or ""))
 
     if not caminho.exists():
+        entrada = EntradaSemantica(arquivo=str(arquivo or ""))
         adicionar_erro(
             entrada.erros_lexicos,
             0,
@@ -410,8 +468,9 @@ def prepararEntradaSemantica(arquivo):
         return entrada
 
     try:
-        entrada.fonte = caminho.read_text(encoding="utf-8")
+        fonte = caminho.read_text(encoding="utf-8")
     except OSError:
+        entrada = EntradaSemantica(arquivo=str(arquivo or ""))
         adicionar_erro(
             entrada.erros_lexicos,
             0,
@@ -420,7 +479,4 @@ def prepararEntradaSemantica(arquivo):
         )
         return entrada
 
-    if _tokenizar(entrada) == 0:
-        _parse_programa(entrada)
-
-    return entrada
+    return analisarFonte(fonte, arquivo)

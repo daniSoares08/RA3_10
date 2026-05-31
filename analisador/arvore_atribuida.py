@@ -1,4 +1,4 @@
-# Trabalho realizado individualmente:
+# Integrantes do grupo (ordem alfabetica):
 # Daniel Campos Soares - daniSoares08
 #
 # Nome do grupo no Canvas: RA3_10

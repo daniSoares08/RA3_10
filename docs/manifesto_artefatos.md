@@ -2,23 +2,23 @@
 
 ## Produzidos manualmente
 
-- `AnalisadorSemantico.c`
-- `include/analisador_semantico.h`
-- `src/*.c`
+- `AnalisadorSemantico.py`
+- `funcoes_teste_semantico.py`
+- `analisador/*.py`
 - `Makefile`
 - `README.md`
 - `docs/gramatica_atribuida.ebnf.md`
 - `docs/regras_tipos_sequentes.md`
 - `docs/interfaces.md`
+- `docs/manifesto_artefatos.md`
 - `teste1_valido.txt`
 - `teste2_erros_semanticos.txt`
 - `teste3_integracao.txt`
 
-## Preservados como legado
+## Origem da porta
 
-- `legacy/AnalisadorSemantico.py`
-- `legacy/funcoes_teste_semantico.py`
-- `legacy/analisador/*.py`
+- A implementacao oficial esta em Python.
+- Arquivos independentes de linguagem ficam na raiz do projeto oficial.
 
 ## Gerados pelo programa
 

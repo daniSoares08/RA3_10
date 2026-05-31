@@ -1,4 +1,4 @@
-# Trabalho realizado individualmente:
+# Integrantes do grupo (ordem alfabetica):
 # Daniel Campos Soares - daniSoares08
 #
 # Nome do grupo no Canvas: RA3_10
@@ -19,8 +19,9 @@ from analisador.modelos import (
     TipoDado,
     TipoNo,
     adicionar_erro,
+    avaliar_operacao,
+    avaliar_operacao_unaria,
     nome_tipo_dado,
-    tipo_numerico,
 )
 
 
@@ -63,68 +64,6 @@ def _tipo_numero(valor: str) -> TipoDado:
     return TipoDado.INTEIRO
 
 
-def _tipo_operacao(
-    operador: str,
-    esquerdo: TipoDado,
-    direito: TipoDado,
-    linha: int,
-    resultado: ResultadoTabelaSimbolos,
-) -> TipoDado:
-    if operador in {">", "<", "==", "!=", ">=", "<="}:
-        if not tipo_numerico(esquerdo) or not tipo_numerico(direito):
-            adicionar_erro(
-                resultado.erros_semanticos,
-                linha,
-                operador,
-                "Operador relacional exige operandos numericos.",
-            )
-            return TipoDado.ERRO
-        return TipoDado.BOOL
-
-    if operador in {"/", "%"}:
-        if esquerdo != TipoDado.INTEIRO or direito != TipoDado.INTEIRO:
-            adicionar_erro(
-                resultado.erros_semanticos,
-                linha,
-                operador,
-                f"Operador {operador} exige operandos inteiros.",
-            )
-            return TipoDado.ERRO
-        return TipoDado.INTEIRO
-
-    if operador == "|":
-        if not tipo_numerico(esquerdo) or not tipo_numerico(direito):
-            adicionar_erro(
-                resultado.erros_semanticos,
-                linha,
-                operador,
-                "Divisao real exige operandos numericos.",
-            )
-            return TipoDado.ERRO
-        return TipoDado.REAL
-
-    if operador in {"+", "-", "*", "^"}:
-        if not tipo_numerico(esquerdo) or not tipo_numerico(direito):
-            adicionar_erro(
-                resultado.erros_semanticos,
-                linha,
-                operador,
-                "Operador aritmetico exige operandos numericos.",
-            )
-            return TipoDado.ERRO
-        if esquerdo == TipoDado.REAL or direito == TipoDado.REAL:
-            return TipoDado.REAL
-        return TipoDado.INTEIRO
-
-    adicionar_erro(
-        resultado.erros_semanticos,
-        linha,
-        operador,
-        "Operador nao reconhecido.",
-    )
-    return TipoDado.ERRO
-
-
 def _analisar_no(
     no: NoAst | None,
     resultado: ResultadoTabelaSimbolos,
@@ -135,6 +74,10 @@ def _analisar_no(
 
     if no.tipo == TipoNo.NUMERO:
         no.tipo_dado = _tipo_numero(no.valor)
+        return no.tipo_dado
+
+    if no.tipo == TipoNo.LOGICO:
+        no.tipo_dado = TipoDado.BOOL
         return no.tipo_dado
 
     if no.tipo == TipoNo.VARIAVEL:
@@ -206,22 +149,25 @@ def _analisar_no(
     if no.tipo == TipoNo.BINARIO:
         esquerdo = _analisar_no(no.esquerda, resultado, resultado_atual)
         direito = _analisar_no(no.direita, resultado, resultado_atual)
-        no.tipo_dado = _tipo_operacao(no.operador, esquerdo, direito, no.linha, resultado)
+        # Apenas infere/anota o tipo. O erro de operandos incompativeis e
+        # reportado por verificarTipos() (responsabilidade da Secao 7.3).
+        no.tipo_dado, _ = avaliar_operacao(no.operador, esquerdo, direito)
+        return no.tipo_dado
+
+    if no.tipo == TipoNo.UNARIO:
+        operando = _analisar_no(no.esquerda, resultado, resultado_atual)
+        no.tipo_dado, _ = avaliar_operacao_unaria(no.operador, operando)
         return no.tipo_dado
 
     if no.tipo in (TipoNo.IF, TipoNo.WHILE):
         esquerdo = _analisar_no(no.esquerda, resultado, resultado_atual)
         direito = _analisar_no(no.direita, resultado, resultado_atual)
+        # O erro de condicao nao logica e reportado por verificarTipos();
+        # aqui so propagamos o tipo do corpo (ou erro) para a inferencia.
         if esquerdo not in (TipoDado.BOOL, TipoDado.ERRO):
-            adicionar_erro(
-                resultado.erros_semanticos,
-                no.linha,
-                "IF" if no.tipo == TipoNo.IF else "WHILE",
-                "Condicao de decisao ou repeticao deve ser bool.",
-            )
             no.tipo_dado = TipoDado.ERRO
-            return TipoDado.ERRO
-        no.tipo_dado = direito
+        else:
+            no.tipo_dado = direito
         return no.tipo_dado
 
     no.tipo_dado = TipoDado.ERRO

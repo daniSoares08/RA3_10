@@ -6,10 +6,20 @@
 (2 8 ^)
 (7.0 2.0 |)
 (5.0 1.5 -)
-(4 3 *)
+(4 *{ comentario entre expressoes }* 3 *)
 (42 VAR MEM)
 (VAR)
 (2 RES)
 ((1 2 <) (3 4 +) IF)
 ((VAR 0 >) (VAR 1 -) WHILE)
+(TRUE FLAG MEM) *{ literal logico armazenado em memoria bool }*
+(FLAG)
+((FLAG) (8 2 *) IF) *{ decisao com bool vindo de memoria logica }*
+((FLAG) (1 1 +) WHILE) *{ repeticao com bool vindo de memoria logica }*
+((FALSE) (1 1 +) WHILE) *{ repeticao com literal logico FALSE }*
+(TRUE FALSE OR) *{ disjuncao logica valida }*
+(TRUE TRUE AND) *{ conjuncao logica valida }*
+(FALSE NOT) *{ negacao logica valida }*
+(((1 2 <) (3 4 >) OR) (5 6 +) IF) *{ resultado logico (OR) como condicao de decisao }*
+(((VAR 0 >) NOT) (VAR 1 -) WHILE) *{ resultado logico (NOT) como condicao de repeticao }*
 (END)
