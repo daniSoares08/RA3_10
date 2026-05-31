@@ -50,7 +50,11 @@ memoria que esta sendo definida, nao uma palavra-chave literal.
 
 Regras semanticas associadas:
 
-- `IDENTIFICADOR` usado como leitura deve existir na tabela de simbolos.
+- `IDENTIFICADOR` usado como **operando** de uma expressao (por exemplo `(X 1 +)`)
+  deve existir na tabela de simbolos, senao ocorre erro de uso antes da definicao.
+- Um `IDENTIFICADOR` **sozinho** entre parenteses, `(MEM)`, e a leitura explicita de
+  memoria (no `LEITURA_MEM`): retorna o valor armazenado ou `0` se a memoria nao foi
+  inicializada, sem gerar erro de uso antes da definicao (comando especial `(MEM)`).
 - `item IDENTIFICADOR` sem operador seguinte define a variavel `IDENTIFICADOR` com
   o tipo de `item`.
 - Uma variavel definida com um tipo nao pode ser redefinida com outro tipo.
@@ -81,6 +85,9 @@ FOLLOW(expressao) = { ")" }
 FOLLOW(expressao_cont) = { ")" }
 FOLLOW(fechamento_binario) = { ")" }
 ```
+
+Quando `expressao_cont` consome um segundo `item` e o proximo lookahead e `)`,
+a reducao para atribuicao so e aceita se o segundo item for `IDENTIFICADOR`.
 
 As escolhas com `vazio` sao resolvidas pelo lookahead `)`, exatamente como a tabela
 LL(1) discutida nos materiais de FIRST/FOLLOW: uma celula nao preenchida corresponde

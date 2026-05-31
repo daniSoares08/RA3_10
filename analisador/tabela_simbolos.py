@@ -97,6 +97,20 @@ def _analisar_no(
         no.tipo_dado = simbolo.tipo
         return no.tipo_dado
 
+    if no.tipo == TipoNo.LEITURA_MEM:
+        # Comando especial `(MEM)`: leitura explicita de memoria. Se a memoria nao
+        # foi inicializada, retorna 0 (inteiro) sem erro, conforme o enunciado.
+        # O uso de `MEM` como operando (no VARIAVEL) e que exige definicao previa.
+        simbolo = _buscar_simbolo(resultado, no.valor)
+        if simbolo is None:
+            no.tipo_dado = TipoDado.INTEIRO
+            return no.tipo_dado
+        if len(simbolo.linhas_uso) < MAX_RESULTADOS:
+            simbolo.linhas_uso.append(no.linha)
+        simbolo.linha_ultimo_uso = no.linha
+        no.tipo_dado = simbolo.tipo
+        return no.tipo_dado
+
     if no.tipo == TipoNo.ATRIBUICAO:
         tipo_valor = _analisar_no(no.esquerda, resultado, resultado_atual)
         simbolo = _buscar_simbolo(resultado, no.valor)
@@ -134,7 +148,17 @@ def _analisar_no(
             )
             no.tipo_dado = TipoDado.ERRO
             return TipoDado.ERRO
-        if deslocamento == 0 or deslocamento > resultado_atual:
+        if deslocamento == 0:
+            adicionar_erro(
+                resultado.erros_semanticos,
+                no.linha,
+                no.valor,
+                "N deve ser inteiro nao negativo, mas N=0 nao possui resultado "
+                "anterior correspondente.",
+            )
+            no.tipo_dado = TipoDado.ERRO
+            return TipoDado.ERRO
+        if deslocamento > resultado_atual:
             adicionar_erro(
                 resultado.erros_semanticos,
                 no.linha,

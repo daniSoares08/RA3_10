@@ -107,12 +107,16 @@ memoria (`MEM`), exatamente como ja ocorre com `RES`.
   (`START`, `END`, `RES`, `IF`, `WHILE`, `TRUE`, `FALSE`, `AND`, `OR`, `NOT`).
 - O **tipo** da variavel e inferido a partir do `valor` no momento da definicao.
   A tipagem e **estatica e forte**: o tipo nao muda depois de definido.
-- O valor e **lido** com `(NOME)`. Usar uma variavel antes de defini-la e um erro
-  semantico ("variavel usada antes da definicao").
+- O valor e **lido** com `(NOME)` (comando especial): retorna o valor armazenado ou
+  `0` se a memoria nao foi inicializada. Usar `NOME` como **operando** de uma
+  expressao (por exemplo `(NOME 1 +)`) antes de defini-la e que e um erro semantico
+  ("variavel usada antes da definicao").
 - **Redefinir** uma variavel com um tipo incompativel (por exemplo, `inteiro`
   recebendo `bool`) e um erro semantico.
-- `(N RES)` referencia o resultado do comando `N` posicoes antes do atual; `N` deve
-  ser um inteiro positivo e existir um resultado correspondente.
+- `(N RES)` referencia o resultado do comando `N` posicoes antes do atual. O
+  enunciado define `N` como inteiro nao negativo, mas `N = 0` nao possui resultado
+  anterior correspondente; por isso, para ser semanticamente valido, `N` deve ser
+  maior que zero e existir no historico de resultados.
 
 ## Exemplo semanticamente valido
 
@@ -134,7 +138,7 @@ entao o programa passa na analise semantica e gera Assembly.
 
 ```text
 (START)
-(Y)                   *{ erro: variavel usada antes da definicao }*
+(Y 1 +)               *{ erro: memoria usada como operando antes da definicao }*
 (TRUE 1 +)            *{ erro: operacao aritmetica com operando bool }*
 ((1 2 +) (3 4 +) IF)  *{ erro: condicao de IF nao e bool }*
 (10 Z)
@@ -143,7 +147,9 @@ entao o programa passa na analise semantica e gera Assembly.
 ```
 
 Cada linha comentada gera um erro semantico (com linha, elemento e causa) e o
-programa **nao** gera Assembly.
+programa **nao** gera Assembly. Note que `(Y)` sozinho **nao** seria erro: e a
+leitura explicita de memoria, que retorna `0` se `Y` nunca foi inicializada. O erro
+ocorre porque `Y` e usada como **operando** (`(Y 1 +)`) antes de ser definida.
 
 ## Tabela de simbolos
 

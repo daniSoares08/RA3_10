@@ -5,7 +5,7 @@ Arvore atribuida com 2 simbolo(s) e 75 tipo(s) anotado(s).
 - PROGRAMA valor=`PROGRAMA` operador=`` tipo=desconhecido linha=1 simbolo=`-`
   - ATRIBUICAO valor=`ACC` operador=`` tipo=inteiro linha=3 simbolo=`ACC`
     - NUMERO valor=`100` operador=`` tipo=inteiro linha=3 simbolo=`-`
-  - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=4 simbolo=`ACC`
+  - LEITURA_MEM valor=`ACC` operador=`` tipo=inteiro linha=4 simbolo=`-`
   - IF valor=`IF` operador=`` tipo=inteiro linha=5 simbolo=`-`
     - BINARIO valor=`` operador=`>` tipo=bool linha=5 simbolo=`-`
       - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=5 simbolo=`ACC`
@@ -41,12 +41,12 @@ Arvore atribuida com 2 simbolo(s) e 75 tipo(s) anotado(s).
   - ATRIBUICAO valor=`DONE` operador=`` tipo=bool linha=12 simbolo=`DONE`
     - LOGICO valor=`FALSE` operador=`` tipo=bool linha=12 simbolo=`-`
   - IF valor=`IF` operador=`` tipo=inteiro linha=13 simbolo=`-`
-    - VARIAVEL valor=`DONE` operador=`` tipo=bool linha=13 simbolo=`DONE`
+    - LEITURA_MEM valor=`DONE` operador=`` tipo=bool linha=13 simbolo=`-`
     - BINARIO valor=`` operador=`+` tipo=inteiro linha=13 simbolo=`-`
       - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=13 simbolo=`ACC`
       - NUMERO valor=`5` operador=`` tipo=inteiro linha=13 simbolo=`-`
   - WHILE valor=`WHILE` operador=`` tipo=inteiro linha=14 simbolo=`-`
-    - VARIAVEL valor=`DONE` operador=`` tipo=bool linha=14 simbolo=`DONE`
+    - LEITURA_MEM valor=`DONE` operador=`` tipo=bool linha=14 simbolo=`-`
     - BINARIO valor=`` operador=`-` tipo=inteiro linha=14 simbolo=`-`
       - VARIAVEL valor=`ACC` operador=`` tipo=inteiro linha=14 simbolo=`ACC`
       - NUMERO valor=`1` operador=`` tipo=inteiro linha=14 simbolo=`-`

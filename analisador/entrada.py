@@ -377,6 +377,12 @@ def _parse_expressao_cont(parser: Parser, primeiro: NoAst) -> NoAst:
     token = _atual(parser)
 
     if token.tipo in (TipoToken.FECHA_PAREN, TipoToken.EOF):
+        # Identificador sozinho entre parenteses e a leitura explicita de memoria
+        # `(MEM)`: retorna 0 se nao inicializada (Secao "Comandos Especiais"). Isso
+        # difere de um identificador usado como operando dentro de uma expressao,
+        # que exige definicao previa.
+        if primeiro.tipo == TipoNo.VARIAVEL:
+            return criar_no(TipoNo.LEITURA_MEM, primeiro.valor, primeiro.linha)
         return primeiro
 
     if token.tipo == TipoToken.OPERADOR_LOGICO and token.lexema == "NOT":

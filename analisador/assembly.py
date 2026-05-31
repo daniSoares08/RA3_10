@@ -13,7 +13,11 @@ from analisador.modelos import ArvoreAtribuida, NoAst, TipoNo
 def _coletar_variaveis(no: NoAst | None, nomes: list[str]) -> None:
     if no is None:
         return
-    if no.tipo in (TipoNo.ATRIBUICAO, TipoNo.VARIAVEL) and no.valor and no.valor not in nomes:
+    if (
+        no.tipo in (TipoNo.ATRIBUICAO, TipoNo.VARIAVEL, TipoNo.LEITURA_MEM)
+        and no.valor
+        and no.valor not in nomes
+    ):
         nomes.append(no.valor)
     _coletar_variaveis(no.esquerda, nomes)
     _coletar_variaveis(no.direita, nomes)
@@ -256,7 +260,9 @@ def _emitir_no(no: NoAst | None, data: list[str], texto: list[str], estado: dict
             "    vldr d0, [r0]\n"
             "    bl push_d0\n"
         )
-    elif no.tipo == TipoNo.VARIAVEL:
+    elif no.tipo in (TipoNo.VARIAVEL, TipoNo.LEITURA_MEM):
+        # Leitura de memoria. mem_* e inicializado com 0.0 no .data, entao uma
+        # memoria nao inicializada lida por `(MEM)` retorna 0, conforme o enunciado.
         texto.append(f"    ldr r0, =mem_{no.valor}\n    vldr d0, [r0]\n    bl push_d0\n")
     elif no.tipo == TipoNo.ATRIBUICAO:
         _emitir_no(no.esquerda, data, texto, estado)

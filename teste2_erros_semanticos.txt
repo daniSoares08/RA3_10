@@ -1,12 +1,13 @@
 (START)
 *{ teste com erros semanticos intencionais }*
-(NAO)
+(NAO 1 +) *{ erro: memoria usada como operando antes da definicao }*
 (1.5 2 /)
 (3.0 2 %)
 ((1 2 +) (3 4 +) IF)
 (10 VAR)
 (3.14 VAR)
 (9 RES)
+(0 RES) *{ erro: N=0 nao referencia resultado anterior }*
 ((VAR 1 -) (2 3 +) WHILE)
 (7.0 2.0 |)
 (5 2 ^)

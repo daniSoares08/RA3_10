@@ -17,7 +17,9 @@ Gamma; R |- b : bool
 
 `n` e um numero sem ponto decimal e sem expoente. `r` e um numero com ponto decimal ou expoente. `b` e um literal logico (`TRUE` ou `FALSE`).
 
-## Variaveis
+## Variaveis e leitura de memoria
+
+Uso de `x` como **operando** dentro de uma expressao (por exemplo `(x 1 +)`):
 
 ```text
 Gamma(x) = T
@@ -25,7 +27,28 @@ Gamma(x) = T
 Gamma; R |- x : T
 ```
 
-Se `x` nao estiver em `Gamma`, ocorre erro semantico: variavel usada antes da definicao.
+Se `x` for usado como operando e nao estiver em `Gamma`, ocorre erro semantico:
+variavel usada antes da definicao.
+
+A **leitura explicita de memoria** `(MEM)` (um identificador sozinho entre
+parenteses) e um comando especial: retorna o valor armazenado ou `0` quando a
+memoria nao foi inicializada (enunciado, "Comandos Especiais", `(MEM)`). Por isso
+ela nao gera erro de uso antes da definicao:
+
+```text
+Gamma(x) = T
+-------------------- [T-READ]
+Gamma; R |- (x) : T
+
+x nao pertence a Gamma
+------------------------------- [T-READ-0]
+Gamma; R |- (x) : inteiro
+```
+
+`[T-READ-0]` reflete o valor padrao `0` (inteiro) de uma memoria nao inicializada.
+A distincao entre `[T-VAR]` (operando) e `[T-READ]/[T-READ-0]` (comando `(MEM)`) e
+feita no AST: leitura isolada vira o no `LEITURA_MEM`, enquanto um identificador
+usado como operando permanece `VARIAVEL`.
 
 ```text
 Gamma; R |- e : T    x nao pertence a Gamma
@@ -48,12 +71,15 @@ Gamma; R |- (e x) : erro
 ## RES
 
 ```text
-R possui resultado N linhas antes, com tipo T
--------------------------------------------- [T-RES]
+N > 0    R possui resultado N linhas antes, com tipo T
+----------------------------------------------------- [T-RES]
 Gamma; R |- (N RES) : T
 ```
 
-Se nao existir resultado anterior correspondente, ocorre erro semantico.
+`N` deve ser inteiro nao negativo no nivel lexico/sintatico, mas `N = 0` nao possui
+resultado anterior correspondente, pois apontaria para o proprio comando atual.
+Se `N = 0` ou se nao existir resultado anterior correspondente, ocorre erro
+semantico.
 
 ## Operadores aritmeticos
 

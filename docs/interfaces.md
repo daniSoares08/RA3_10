@@ -36,6 +36,10 @@ Cada `NoAst` guarda:
 
 Estas estruturas sao `dataclasses` em `analisador/modelos.py`.
 
+A categoria sintatica distingue um identificador usado como **operando**
+(`VARIAVEL`, que exige definicao previa) da **leitura explicita de memoria** `(MEM)`
+(`LEITURA_MEM`, que retorna `0` quando a memoria nao foi inicializada, sem erro).
+
 ## Tabela de simbolos
 
 Cada simbolo registra:
