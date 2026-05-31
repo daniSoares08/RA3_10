@@ -277,7 +277,17 @@ def _erro_sintatico(parser: Parser, esperado: str) -> None:
     adicionar_erro(parser.entrada.erros_sintaticos, token.linha, token.lexema, causa)
 
 
+def _inicio_item(tipo: TipoToken) -> bool:
+    return tipo in (
+        TipoToken.ABRE_PAREN,
+        TipoToken.NUMERO,
+        TipoToken.LOGICO,
+        TipoToken.IDENTIFICADOR,
+    )
+
+
 def _parse_item(parser: Parser) -> NoAst:
+    """Reconhece o nao-terminal `item` da gramatica LL(1)."""
     token = _atual(parser)
 
     if token.tipo == TipoToken.ABRE_PAREN:
@@ -291,104 +301,145 @@ def _parse_item(parser: Parser) -> NoAst:
     if token.tipo == TipoToken.IDENTIFICADOR:
         parser.posicao += 1
         return criar_no(TipoNo.VARIAVEL, token.lexema, token.linha)
-    if token.tipo in (
-        TipoToken.OPERADOR_ARIT,
-        TipoToken.OPERADOR_REL,
-        TipoToken.OPERADOR_LOGICO,
-    ):
-        parser.posicao += 1
-        no = criar_no(TipoNo.BINARIO, None, token.linha)
-        no.operador = token.lexema
-        return no
-    if token.tipo == TipoToken.RES:
-        parser.posicao += 1
-        return criar_no(TipoNo.RES, token.lexema, token.linha)
-    if token.tipo == TipoToken.IF:
-        parser.posicao += 1
-        return criar_no(TipoNo.IF, token.lexema, token.linha)
-    if token.tipo == TipoToken.WHILE:
-        parser.posicao += 1
-        return criar_no(TipoNo.WHILE, token.lexema, token.linha)
 
     _erro_sintatico(
         parser,
-        "expressao, identificador, numero, literal logico, operador, "
-        "AND/OR/NOT, IF, WHILE ou RES",
+        "item de expressao (numero, literal logico, identificador ou '(')",
     )
     parser.posicao += 1
     return criar_no(TipoNo.INVALIDO, token.lexema, token.linha)
 
 
-def _item_operador(no: NoAst | None) -> bool:
-    return (
-        no is not None
-        and no.tipo == TipoNo.BINARIO
-        and no.operador != ""
-        and no.esquerda is None
-        and no.direita is None
-    )
+def _criar_no_binario(operador: Token, esquerdo: NoAst, direito: NoAst) -> NoAst:
+    resultado = criar_no(TipoNo.BINARIO, None, operador.linha)
+    resultado.operador = operador.lexema
+    resultado.esquerda = esquerdo
+    resultado.direita = direito
+    return resultado
 
 
-def _montar_expressao(parser: Parser, itens: list[NoAst], linha: int) -> NoAst:
-    if len(itens) == 1:
-        return itens[0]
+def _criar_no_controle(operador: Token, condicao: NoAst, corpo: NoAst) -> NoAst:
+    tipo = TipoNo.IF if operador.tipo == TipoToken.IF else TipoNo.WHILE
+    resultado = criar_no(tipo, operador.lexema, operador.linha)
+    resultado.esquerda = condicao
+    resultado.direita = corpo
+    return resultado
 
-    # Operador logico unario: (expressao NOT).
-    if len(itens) == 2 and _item_operador(itens[1]) and itens[1].operador == "NOT":
-        resultado = criar_no(TipoNo.UNARIO, None, itens[1].linha)
-        resultado.operador = "NOT"
-        resultado.esquerda = itens[0]
+
+def _criar_no_atribuicao(valor: NoAst, memoria: NoAst) -> NoAst:
+    resultado = criar_no(TipoNo.ATRIBUICAO, memoria.valor, memoria.linha)
+    resultado.esquerda = valor
+    return resultado
+
+
+def _parse_fechamento_binario(parser: Parser, primeiro: NoAst, segundo: NoAst) -> NoAst:
+    """Reconhece operador binario, controle ou atribuicao apos dois itens."""
+    token = _atual(parser)
+
+    if token.tipo in (TipoToken.OPERADOR_ARIT, TipoToken.OPERADOR_REL):
+        parser.posicao += 1
+        return _criar_no_binario(token, primeiro, segundo)
+
+    if token.tipo == TipoToken.OPERADOR_LOGICO:
+        parser.posicao += 1
+        if token.lexema not in {"AND", "OR"}:
+            adicionar_erro(
+                parser.entrada.erros_sintaticos,
+                token.linha,
+                token.lexema,
+                "Operador logico binario deve ser AND ou OR.",
+            )
+            return criar_no(TipoNo.INVALIDO, token.lexema, token.linha)
+        return _criar_no_binario(token, primeiro, segundo)
+
+    if token.tipo in (TipoToken.IF, TipoToken.WHILE):
+        parser.posicao += 1
+        return _criar_no_controle(token, primeiro, segundo)
+
+    if token.tipo in (TipoToken.FECHA_PAREN, TipoToken.EOF):
+        if segundo.tipo == TipoNo.VARIAVEL:
+            return _criar_no_atribuicao(primeiro, segundo)
+        adicionar_erro(
+            parser.entrada.erros_sintaticos,
+            segundo.linha,
+            segundo.valor,
+            "Atribuicao exige identificador de memoria como segundo item.",
+        )
+        return criar_no(TipoNo.INVALIDO, "expressao", segundo.linha)
+
+    _erro_sintatico(parser, "operador binario, IF, WHILE ou fim de atribuicao")
+    parser.posicao += 1
+    return criar_no(TipoNo.INVALIDO, token.lexema, token.linha)
+
+
+def _parse_expressao_cont(parser: Parser, primeiro: NoAst) -> NoAst:
+    """Reconhece o sufixo de uma expressao RPN usando um token de lookahead."""
+    token = _atual(parser)
+
+    if token.tipo in (TipoToken.FECHA_PAREN, TipoToken.EOF):
+        return primeiro
+
+    if token.tipo == TipoToken.OPERADOR_LOGICO and token.lexema == "NOT":
+        parser.posicao += 1
+        resultado = criar_no(TipoNo.UNARIO, None, token.linha)
+        resultado.operador = token.lexema
+        resultado.esquerda = primeiro
         return resultado
 
-    if len(itens) == 2 and itens[0].tipo == TipoNo.NUMERO and itens[1].tipo == TipoNo.RES:
-        return criar_no(TipoNo.RES, itens[0].valor, itens[0].linha)
+    if token.tipo == TipoToken.RES:
+        parser.posicao += 1
+        if primeiro.tipo != TipoNo.NUMERO:
+            adicionar_erro(
+                parser.entrada.erros_sintaticos,
+                token.linha,
+                token.lexema,
+                "Comando RES exige numero antes de RES.",
+            )
+            return criar_no(TipoNo.INVALIDO, token.lexema, token.linha)
+        return criar_no(TipoNo.RES, primeiro.valor, primeiro.linha)
 
-    # Comando especial do enunciado: (V MEM), onde MEM e o nome da memoria.
-    if len(itens) == 2 and itens[1].tipo == TipoNo.VARIAVEL:
-        resultado = criar_no(TipoNo.ATRIBUICAO, itens[1].valor, itens[1].linha)
-        resultado.esquerda = itens[0]
-        return resultado
+    if _inicio_item(token.tipo):
+        segundo = _parse_item(parser)
+        return _parse_fechamento_binario(parser, primeiro, segundo)
 
-    if len(itens) == 3 and _item_operador(itens[2]):
-        resultado = itens[2]
-        resultado.esquerda = itens[0]
-        resultado.direita = itens[1]
-        return resultado
+    _erro_sintatico(parser, "NOT, RES, segundo item de expressao ou ')'")
+    parser.posicao += 1
+    return criar_no(TipoNo.INVALIDO, token.lexema, token.linha)
 
-    if len(itens) == 3 and itens[2].tipo in (TipoNo.IF, TipoNo.WHILE):
-        resultado = criar_no(itens[2].tipo, itens[2].valor, itens[2].linha)
-        resultado.esquerda = itens[0]
-        resultado.direita = itens[1]
-        return resultado
 
-    adicionar_erro(
-        parser.entrada.erros_sintaticos,
-        linha,
-        "expressao",
-        "Expressao RPN nao corresponde aos formatos da Fase 2.",
-    )
-    return criar_no(TipoNo.INVALIDO, "expressao", linha)
+def _parse_expressao(parser: Parser) -> NoAst:
+    """Reconhece `expressao ::= item expressao_cont`."""
+    primeiro = _parse_item(parser)
+    if primeiro.tipo == TipoNo.INVALIDO:
+        return primeiro
+    return _parse_expressao_cont(parser, primeiro)
 
 
 def _parse_parenteses(parser: Parser) -> NoAst:
     abre = _atual(parser)
-    itens: list[NoAst] = []
 
     if not _aceitar(parser, TipoToken.ABRE_PAREN):
         _erro_sintatico(parser, "'('")
         return criar_no(TipoNo.INVALIDO, "(", _atual(parser).linha)
 
-    while _atual(parser).tipo not in (TipoToken.FECHA_PAREN, TipoToken.EOF):
-        if len(itens) >= 8:
-            _erro_sintatico(parser, "expressao RPN com ate 3 itens relevantes")
-            break
-        itens.append(_parse_item(parser))
+    if _atual(parser).tipo in (TipoToken.FECHA_PAREN, TipoToken.EOF):
+        _erro_sintatico(parser, "expressao")
+        if _atual(parser).tipo == TipoToken.FECHA_PAREN:
+            parser.posicao += 1
+        return criar_no(TipoNo.INVALIDO, "expressao", abre.linha)
+
+    expressao = _parse_expressao(parser)
+
+    if _atual(parser).tipo not in (TipoToken.FECHA_PAREN, TipoToken.EOF):
+        _erro_sintatico(parser, "')' encerrando a expressao")
+        while _atual(parser).tipo not in (TipoToken.FECHA_PAREN, TipoToken.EOF):
+            parser.posicao += 1
 
     if not _aceitar(parser, TipoToken.FECHA_PAREN):
         _erro_sintatico(parser, "')'")
         return criar_no(TipoNo.INVALIDO, ")", abre.linha)
 
-    return _montar_expressao(parser, itens, abre.linha)
+    return expressao
 
 
 def _parse_marcador(parser: Parser, esperado: TipoToken, nome: str) -> bool:
